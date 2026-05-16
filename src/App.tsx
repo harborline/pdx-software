@@ -1,12 +1,6 @@
 import { ArrowRight, Mail } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
-import { companies, legalEmail, principles } from './lib/content'
-
-type StatusResponse = {
-  ok: boolean
-  service: string
-  company: string
-}
+import { legalEmail } from './lib/content'
 
 type SiteMode = 'holding' | 'product'
 
@@ -62,25 +56,22 @@ function Shell({
   pathname: string
   navigate: (path: string) => void
 }) {
-  const nav = mode === 'holding'
-    ? [
-        { href: '#companies', label: 'Companies' },
-        { href: '#principles', label: 'Principles' },
-        { href: '#contact', label: 'Contact' },
-      ]
-    : [
-        { href: '/about', label: 'About' },
-        { href: '/support', label: 'Support' },
-        { href: '/privacy', label: 'Privacy' },
-        { href: '/terms', label: 'Terms' },
-      ]
+  if (mode === 'holding') {
+    return (
+      <div className="site-shell holding-shell">
+        <main>{children}</main>
+        <footer className="holding-footer">
+          <p>© 2026 Harborline Holdings</p>
+        </footer>
+      </div>
+    )
+  }
 
-  const brandHref = mode === 'holding' ? '/' : '/about'
-  const brandLabel = mode === 'holding' ? 'Harborline Holdings' : 'App Sweep'
-  const footerLinks = [
-    { href: mode === 'holding' ? 'https://pdx.software/privacy' : '/privacy', label: 'Privacy' },
-    { href: mode === 'holding' ? 'https://pdx.software/terms' : '/terms', label: 'Terms' },
-    { href: mode === 'holding' ? 'https://pdx.software/support' : '/support', label: 'Support' },
+  const nav = [
+    { href: '/about', label: 'About' },
+    { href: '/support', label: 'Support' },
+    { href: '/privacy', label: 'Privacy' },
+    { href: '/terms', label: 'Terms' },
   ]
 
   return (
@@ -88,14 +79,14 @@ function Shell({
       <header className="site-header">
         <a
           className="brand"
-          href={brandHref}
+          href="/about"
           onClick={(event) => {
             event.preventDefault()
-            navigate(brandHref)
+            navigate('/about')
           }}
         >
           <span className="brand-mark" aria-hidden="true" />
-          <span>{brandLabel}</span>
+          <span>App Sweep</span>
         </a>
         <nav className="nav-links" aria-label="Primary navigation">
           {nav.map((item) => (
@@ -124,7 +115,11 @@ function Shell({
           <p>© 2026 Harborline Holdings</p>
         </div>
         <div className="footer-links">
-          {footerLinks.map((link) => (
+          {[
+            { href: '/privacy', label: 'Privacy' },
+            { href: '/terms', label: 'Terms' },
+            { href: '/support', label: 'Support' },
+          ].map((link) => (
             <a
               href={link.href}
               key={link.href}
@@ -146,84 +141,21 @@ function Shell({
 }
 
 function HomePage() {
-  const [status, setStatus] = useState<StatusResponse | null>(null)
-
-  useEffect(() => {
-    fetch('/api/status')
-      .then((response) => response.ok ? response.json() : null)
-      .then((payload) => setStatus(payload as StatusResponse | null))
-      .catch(() => setStatus(null))
-  }, [])
-
   return (
-    <>
-      <section className="hero">
-        <div className="hero-copy">
-          <p className="domain">harborline.cloud</p>
-          <h1>Quiet software for useful work.</h1>
-          <p className="hero-lede">
-            We build and operate focused tools for Mac productivity, publishing, automation, and
-            small business workflows.
-          </p>
-          <div className="hero-actions">
-            <a className="button button-primary" href={`mailto:${legalEmail}`}>
-              Contact
-              <Mail size={18} aria-hidden="true" />
-            </a>
-            <a className="button button-secondary" href="#companies">
-              View companies
-              <ArrowRight size={18} aria-hidden="true" />
-            </a>
-          </div>
-          <div className="status-line" aria-live="polite">
-            <span className={status?.ok ? 'status-dot is-online' : 'status-dot'} />
-            {status?.ok ? `${status.service} Worker API online` : 'Cloudflare Worker API checking'}
-          </div>
-        </div>
-      </section>
-
-      <section id="companies" className="section">
-        <div className="section-heading">
-          <h2>Products we operate</h2>
-          <p>
-            Harborline keeps the holding company separate from the products: this site is for the
-            company, Fly handles link tracking, and product pages stay product-specific.
-          </p>
-        </div>
-        <div className="company-grid">
-          {companies.map((company) => (
-            <a className="company-card" href={company.href} key={company.name}>
-              <company.Icon size={22} aria-hidden="true" />
-              <span className="company-status">{company.status}</span>
-              <h3>{company.name}</h3>
-              <p>{company.description}</p>
-            </a>
-          ))}
-        </div>
-      </section>
-
-      <section id="principles" className="section principles">
-        <div className="section-heading">
-          <h2>Operating principles</h2>
-          <p>Simple rules that keep the company and the products understandable.</p>
-        </div>
-        <div className="principle-list">
-          {principles.map((principle) => (
-            <article className="principle-row" key={principle.title}>
-              <div className="icon-frame">
-                <principle.Icon size={20} aria-hidden="true" />
-              </div>
-              <div>
-                <h3>{principle.title}</h3>
-                <p>{principle.body}</p>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <ContactBand />
-    </>
+    <section className="holding-home" aria-labelledby="holding-title">
+      <div className="holding-heading">
+        <h1 id="holding-title">Harborline Holdings</h1>
+        <p>Portland, Oregon • United States</p>
+      </div>
+      <div className="holding-card-grid" aria-label="Harborline links">
+        <a className="holding-card" href="https://pdx.software">
+          <span>PDX Software</span>
+        </a>
+        <article className="holding-card is-disabled" aria-label="Coming soon">
+          <span>Coming soon</span>
+        </article>
+      </div>
+    </section>
   )
 }
 
@@ -390,6 +322,9 @@ export default function App() {
   const mode = getSiteMode()
   const currentPath = resolvePath(pathname, mode)
   const page = useMemo(() => {
+    if (mode === 'holding')
+      return <HomePage />
+
     switch (currentPath) {
       case '/marketing':
       case '/about':
@@ -404,7 +339,7 @@ export default function App() {
       default:
         return <HomePage />
     }
-  }, [currentPath])
+  }, [currentPath, mode])
 
   return (
     <Shell mode={mode} pathname={currentPath} navigate={navigate}>

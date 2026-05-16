@@ -46,6 +46,108 @@ a {
   margin: 0 auto;
 }
 
+.holding-shell {
+  width: min(540px, calc(100% - 32px));
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  padding: 56px 0 24px;
+  color: rgb(241, 241, 241);
+  isolation: isolate;
+}
+
+.holding-shell::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: rgb(59, 59, 63);
+}
+
+.holding-home {
+  align-self: center;
+  display: grid;
+  gap: 24px;
+}
+
+.holding-heading {
+  display: grid;
+  gap: 8px;
+}
+
+.holding-heading h1 {
+  max-width: none;
+  margin: 0;
+  color: rgb(241, 241, 241);
+  font-size: 28px;
+  font-weight: 660;
+  line-height: 1.08;
+}
+
+.holding-heading p {
+  margin: 0;
+  color: rgb(176, 176, 181);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.holding-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.holding-card {
+  min-height: 112px;
+  display: flex;
+  align-items: flex-end;
+  border: 1px solid rgb(80, 80, 85);
+  border-radius: 8px;
+  background: rgba(74, 74, 78, 0.86);
+  padding: 16px;
+  color: rgb(241, 241, 241);
+  box-shadow: 0 20px 42px rgba(0, 0, 0, 0.3);
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    transform 160ms ease;
+}
+
+.holding-card:hover,
+.holding-card:focus-visible {
+  border-color: rgb(225, 227, 230);
+  background: rgba(74, 74, 78, 0.98);
+  transform: translateY(-2px);
+  outline: none;
+}
+
+.holding-card:focus-visible {
+  box-shadow:
+    0 0 0 3px rgb(59, 59, 63),
+    0 0 0 5px rgb(225, 227, 230);
+}
+
+.holding-card span {
+  font-size: 17px;
+  font-weight: 650;
+  line-height: 1.15;
+}
+
+.holding-card.is-disabled {
+  color: rgb(176, 176, 181);
+  pointer-events: none;
+}
+
+.holding-footer {
+  padding-top: 24px;
+  color: rgba(176, 176, 181, 0.72);
+  font-size: 12px;
+}
+
+.holding-footer p {
+  margin: 0;
+}
+
 .site-header {
   display: flex;
   align-items: center;
@@ -495,6 +597,10 @@ h1 {
 }
 
 @media (max-width: 520px) {
+  .holding-card-grid {
+    grid-template-columns: 1fr;
+  }
+
   .nav-links {
     border-radius: 16px;
     align-items: stretch;
