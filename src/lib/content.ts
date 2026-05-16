@@ -14,7 +14,7 @@ export const companies: Company[] = [
     name: 'App Sweep',
     description:
       'A compact macOS utility for force quitting selected apps, moving them to Trash, and emptying Trash from one focused interface.',
-    href: 'https://pdx.software/marketing',
+    href: 'https://pdx.software/about',
     status: 'Mac utility',
     Icon: AppWindow,
   },

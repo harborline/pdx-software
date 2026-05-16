@@ -30,7 +30,7 @@ app.get('/api/company', (c) => {
       {
         name: 'App Sweep',
         category: 'Mac utility',
-        url: 'https://pdx.software/marketing',
+        url: 'https://pdx.software/about',
       },
       {
         name: 'Fly',

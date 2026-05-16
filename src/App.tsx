@@ -43,7 +43,10 @@ function getSiteMode(): SiteMode {
 
 function resolvePath(pathname: string, mode: SiteMode) {
   if (mode === 'product' && pathname === '/')
-    return '/marketing'
+    return '/about'
+
+  if (pathname === '/marketing')
+    return '/about'
 
   return pathname
 }
@@ -66,13 +69,13 @@ function Shell({
         { href: '#contact', label: 'Contact' },
       ]
     : [
-        { href: '/marketing', label: 'Marketing' },
+        { href: '/about', label: 'About' },
         { href: '/support', label: 'Support' },
         { href: '/privacy', label: 'Privacy' },
         { href: '/terms', label: 'Terms' },
       ]
 
-  const brandHref = mode === 'holding' ? '/' : '/marketing'
+  const brandHref = mode === 'holding' ? '/' : '/about'
   const brandLabel = mode === 'holding' ? 'Harborline Holdings' : 'App Sweep'
   const footerLinks = [
     { href: mode === 'holding' ? 'https://pdx.software/privacy' : '/privacy', label: 'Privacy' },
@@ -119,9 +122,6 @@ function Shell({
       <footer className="site-footer">
         <div>
           <p>© 2026 Harborline Holdings</p>
-          <p className="muted">
-            harborline.cloud is the holding company. pdx.software serves App Sweep pages.
-          </p>
         </div>
         <div className="footer-links">
           {footerLinks.map((link) => (
@@ -227,7 +227,7 @@ function HomePage() {
   )
 }
 
-function MarketingPage() {
+function AboutPage() {
   return (
     <>
       <section className="page-hero compact">
@@ -374,7 +374,7 @@ function ContactBand() {
   return (
     <section id="contact" className="contact-band">
       <div>
-        <h2>Contact Harborline Holdings</h2>
+        <h2>Contact support</h2>
         <p>Product support, App Store review questions, and company inquiries can start here.</p>
       </div>
       <a className="button button-primary" href={`mailto:${legalEmail}`}>
@@ -392,7 +392,8 @@ export default function App() {
   const page = useMemo(() => {
     switch (currentPath) {
       case '/marketing':
-        return <MarketingPage />
+      case '/about':
+        return <AboutPage />
       case '/privacy':
         return <PrivacyPage />
       case '/terms':
