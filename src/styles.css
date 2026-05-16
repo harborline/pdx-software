@@ -135,6 +135,9 @@ a {
 
 .holding-card.is-disabled {
   color: rgb(176, 176, 181);
+  border-style: dotted;
+  background: transparent;
+  box-shadow: none;
   pointer-events: none;
 }
 
@@ -142,6 +145,7 @@ a {
   padding-top: 24px;
   color: rgba(176, 176, 181, 0.72);
   font-size: 12px;
+  text-align: center;
 }
 
 .holding-footer p {
