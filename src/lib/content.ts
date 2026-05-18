@@ -63,9 +63,7 @@ export const apps: AppRecord[] = [
       },
     ],
     carouselLines: [
-      'Force quit. Move to Trash. Empty Trash. One window.',
-      'App Sweep keeps the selected paths visible until you confirm.',
-      'No analytics. No accounts. macOS keeps the security prompts.',
+      '1-Click to Quit, Delete, & Empty the Trash Bin.',
     ],
   },
   {
@@ -99,10 +97,7 @@ export const apps: AppRecord[] = [
       },
     ],
     carouselLines: [
-      'AI-first email at mail.fly.pm.',
-      'Forwarding + labelling rules. One click from any thread.',
-      'Open + click tracking, with machine pre-fetches filtered out.',
-      'Local IndexedDB cache. The inbox renders before the network does.',
+      "AI-first Email on Cloudflare's Edge",
     ],
   },
   {
@@ -163,7 +158,7 @@ export const apps: AppRecord[] = [
     accent: '#88c0d0',
     features: [],
     carouselLines: [
-      'Prompt an idea, ship the app.',
+      'Make Any App with the Modern Stack',
     ],
   },
   {
