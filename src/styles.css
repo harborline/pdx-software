@@ -646,30 +646,38 @@ h1 {
 
 .hero-line-wrap {
   position: relative;
-  min-height: 132px;
+  width: 100%;
   max-width: 880px;
   margin: 0 auto;
+  /* Reserves room for the tallest expected wrap so the byline + dots
+     below stay anchored when a longer line rotates in. Scales with the
+     viewport like the headline does. */
+  min-height: clamp(120px, 16vw, 200px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .hero-line {
-  position: absolute;
-  inset: 0;
   margin: 0;
   font-size: clamp(28px, 4.4vw, 52px);
-  line-height: 1.12;
+  line-height: 1.15;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--ink);
-  opacity: 0;
-  transform: translateY(8px);
-  transition: opacity 600ms ease, transform 600ms ease;
-  pointer-events: none;
+  text-align: center;
+  /* React remounts this element on every index advance via `key`;
+     the keyframe runs fresh each time. */
+  animation: hero-line-fade 520ms ease both;
 }
 
-.hero-line.is-visible {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
+@keyframes hero-line-fade {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-line { animation: none; }
 }
 
 .hero-byline {

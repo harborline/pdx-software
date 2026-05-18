@@ -166,15 +166,12 @@ function HeroCarousel({ navigate }: { navigate: (path: string) => void }) {
     <section className="hero-carousel">
       <p className="domain">PDX Software</p>
       <div className="hero-line-wrap" aria-live="polite">
-        {lines.map((entry, i) => (
-          <h1
-            key={i}
-            className={`hero-line ${i === index ? 'is-visible' : ''}`}
-            aria-hidden={i === index ? undefined : true}
-          >
-            {entry.line}
-          </h1>
-        ))}
+        {/* Render only the active line. The `key` change forces React
+            to remount the h1 on every index advance which restarts the
+            fade-in keyframe; no absolute-position layering required, so
+            the headline stays naturally centred under the parent's
+            text-align rather than collapsing into a zero-width inset. */}
+        <h1 key={index} className="hero-line">{current.line}</h1>
       </div>
       <p className="hero-byline">
         Currently:{' '}
