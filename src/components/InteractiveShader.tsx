@@ -66,43 +66,41 @@ export function InteractiveShader({ timeStep = 0.05 }: InteractiveShaderProps) {
         }
       `
 
+      // Soft pastel-drift shader. Three slow rolling sin/cos waves each
+      // mix a different muted tint into the page background colour
+      // (#f8fafc, matched in the base) so the hero reads as the same
+      // surface as the rest of the site — just gently moving. The
+      // motion is intentionally low-frequency (multipliers under 2.0
+      // on uv, time scaled to ~0.03/sec) so the result feels like a
+      // breathing colour wash rather than an attention-grabbing
+      // animation. Paired with the 28px CSS blur it lands as ambient.
       const fragmentShader = `
-        #define TWO_PI 6.2831853072
-        #define PI 3.14159265359
-
         precision highp float;
         uniform vec2 resolution;
         uniform float time;
 
-        float random(in float x) {
-          return fract(sin(x) * 1e4);
-        }
-        float random(vec2 st) {
-          return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
-        }
-
-        varying vec2 vUv;
-
         void main(void) {
-          vec2 uv = (gl_FragCoord.xy * 2.0 - resolution.xy) / min(resolution.x, resolution.y);
+          // Aspect-correct uv so motion doesn't squish horizontally
+          // on wide viewports.
+          vec2 uv = gl_FragCoord.xy / resolution.xy;
+          vec2 p = uv * vec2(resolution.x / resolution.y, 1.0);
+          float t = time * 0.03;
 
-          vec2 fMosaicScal = vec2(4.0, 2.0);
-          vec2 vScreenSize = vec2(256.0, 256.0);
-          uv.x = floor(uv.x * vScreenSize.x / fMosaicScal.x) / (vScreenSize.x / fMosaicScal.x);
-          uv.y = floor(uv.y * vScreenSize.y / fMosaicScal.y) / (vScreenSize.y / fMosaicScal.y);
+          float a = sin(p.x * 1.7 + t * 0.9) * cos(p.y * 1.4 - t * 0.6);
+          float b = sin((p.x + p.y) * 1.2 + t * 0.7) * sin(p.y * 1.8 - t * 0.4);
+          float c = cos(p.x * 1.1 - t * 0.5) * sin(p.y * 0.9 + t * 0.8);
 
-          float t = time * 0.06 + random(uv.x) * 0.4;
-          float lineWidth = 0.0008;
+          vec3 baseColor = vec3(0.972, 0.980, 0.988); // matches body bg #f8fafc
+          vec3 blueTint    = vec3(0.09, 0.41, 0.88);  // accent #1769e0
+          vec3 lavenderTint = vec3(0.70, 0.62, 0.92);
+          vec3 peachTint    = vec3(0.97, 0.84, 0.74);
 
-          vec3 color = vec3(0.0);
-          for (int j = 0; j < 3; j++) {
-            for (int i = 0; i < 5; i++) {
-              color[j] += lineWidth * float(i * i) /
-                abs(fract(t - 0.01 * float(j) + float(i) * 0.01) * 1.0 - length(uv));
-            }
-          }
+          vec3 color = baseColor;
+          color = mix(color, blueTint,     smoothstep(-0.2, 1.0, a) * 0.12);
+          color = mix(color, lavenderTint, smoothstep(-0.2, 1.0, b) * 0.09);
+          color = mix(color, peachTint,    smoothstep(-0.2, 1.0, c) * 0.07);
 
-          gl_FragColor = vec4(color[2], color[1], color[0], 1.0);
+          gl_FragColor = vec4(color, 1.0);
         }
       `
 

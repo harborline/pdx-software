@@ -165,10 +165,11 @@ function HeroCarousel({ navigate }: { navigate: (path: string) => void }) {
 
   return (
     <section className="hero-carousel">
-      {/* WebGL aurora background. The shader is pointer-events:none in
-          CSS so the hero text + dots above it stay clickable. */}
+      {/* Soft pastel-drift shader. Pointer-events:none in CSS so the
+          hero text + dots above it stay clickable. Slow timeStep
+          keeps the animation calm — barely-noticeable motion. */}
       <div className="hero-shader" aria-hidden>
-        <InteractiveShader />
+        <InteractiveShader timeStep={0.02} />
       </div>
       <p className="domain">PDX Software</p>
       <div className="hero-line-wrap" aria-live="polite">

@@ -640,28 +640,9 @@ h1 {
   color: #f1f1f1;
 }
 
-.hero-carousel .domain {
-  color: rgba(255, 255, 255, 0.75);
-}
-
-.hero-carousel .hero-line {
-  color: #ffffff;
-}
-
-.hero-carousel .hero-byline {
-  color: rgba(255, 255, 255, 0.75);
-}
-
-.hero-carousel .hero-byline a {
-  color: #c9dcff;
-}
-
-.hero-carousel .hero-dot {
-  background: rgba(255, 255, 255, 0.25);
-}
-.hero-carousel .hero-dot.is-active {
-  background: #ffffff;
-}
+/* Hero text colours stay on the regular page palette — the shader is
+   now a pale pastel wash that lives in the same brightness range as
+   the body background, so white-on-dark would over-correct. */
 
 .hero-shader {
   position: absolute;
