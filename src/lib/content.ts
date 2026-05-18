@@ -1,11 +1,14 @@
 import type { LucideIcon } from 'lucide-react'
 import {
   AppWindow,
+  BookOpen,
   ChartNoAxesCombined,
   Compass,
   Hammer,
   Mail,
+  MessageCircle,
   ShieldCheck,
+  Wand2,
 } from 'lucide-react'
 
 export interface AppFeature {
@@ -130,20 +133,54 @@ export const apps: AppRecord[] = [
     ],
   },
   {
-    slug: 'harborline-labs',
-    name: 'Harborline Labs',
-    tagline: 'Experiments in publishing, automation, and indie tools.',
+    slug: 'book-cook',
+    name: 'Book Cook',
+    tagline: 'Outline, draft, and ship a book with AI scene-by-scene.',
     description:
-      'Small experiments around publishing workflows, automation helpers, and practical tools for independent operators.',
-    ctaLabel: 'Get in touch',
-    ctaHref: 'mailto:help@pdx.software',
-    status: 'In development',
+      'A studio for long-form authoring. Build a chapter outline, draft scene-by-scene against beat-purpose prompts, and iterate on tone via a reusable voice profile.',
+    ctaLabel: 'Open Book Cook',
+    ctaHref: 'https://book-cook.com',
+    status: 'AI authoring studio',
     featured: false,
-    Icon: Hammer,
+    Icon: BookOpen,
+    accent: '#d08770',
+    features: [],
+    carouselLines: [
+      'Outline first, draft scene-by-scene, iterate on tone last.',
+    ],
+  },
+  {
+    slug: 'makethe-app',
+    name: 'Make The App',
+    tagline: 'Prompt-to-app builder for the rest of us.',
+    description:
+      'Describe what you want, get a deployed app. A prompt-driven scaffolder that wires up the front-end, back-end, and a Cloudflare-native runtime in one round-trip.',
+    ctaLabel: 'Visit makethe.app',
+    ctaHref: 'https://makethe.app',
+    status: 'Prompt-to-app builder',
+    featured: false,
+    Icon: Wand2,
+    accent: '#88c0d0',
+    features: [],
+    carouselLines: [
+      'Prompt an idea, ship the app.',
+    ],
+  },
+  {
+    slug: 'alex',
+    name: 'alex',
+    tagline: 'A native conversational companion for Apple platforms.',
+    description:
+      'A Mac, iPhone, and Watch app for keeping a long-running conversation with an assistant, with widgets, share-sheet capture, and a watch face glance.',
+    ctaLabel: 'Visit alex.chat',
+    ctaHref: 'https://alex.chat',
+    status: 'Mac · iOS · watchOS',
+    featured: false,
+    Icon: MessageCircle,
     accent: '#b48ead',
     features: [],
     carouselLines: [
-      'Experiments in publishing, automation, and indie tools.',
+      'A native, always-on companion across Mac, iPhone, and Watch.',
     ],
   },
 ]
