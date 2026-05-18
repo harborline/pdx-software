@@ -1,209 +1,184 @@
 import { useEffect, useRef } from 'react'
 
-// Animated WebGL "aurora" shader. Renders a fullscreen canvas inside
-// its container, driven by a fragment shader that ray-marches a
-// hashed-noise volume and tints it with a rotating colour wheel. The
-// mouse position is fed in as a uniform so the field drifts when the
-// pointer moves over the hero region. Heavy by background-component
-// standards but bounded — 32 march steps, 4 noise octaves — so a
-// modern laptop handles it without breaking the animation budget.
-interface InteractiveShaderProps {
-  flowSpeed?: number
-  colorIntensity?: number
-  noiseLayers?: number
-  mouseInfluence?: number
+// Three.js loads at runtime from the Cloudflare CDN. Typed as `any`
+// because the global it adds doesn't ship its own type declarations
+// and pulling the npm package + tree-shaking just for a single
+// shader pass isn't worth the build cost.
+declare global {
+  interface Window {
+    THREE?: any
+  }
 }
 
-export function InteractiveShader({
-  flowSpeed = 0.4,
-  colorIntensity = 1.2,
-  noiseLayers = 4.0,
-  mouseInfluence = 0.3,
-}: InteractiveShaderProps) {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null)
-  const mousePos = useRef({ x: 0.5, y: 0.5 })
+const THREE_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/89/three.min.js'
+
+interface InteractiveShaderProps {
+  /** Per-frame increment applied to the shader's `time` uniform. */
+  timeStep?: number
+}
+
+// Animated WebGL rings shader, rendered via Three.js. A fullscreen
+// `PlaneBufferGeometry` is shaded with a fragment program that draws
+// expanding mosaic-quantised rings tinted with three slightly offset
+// colour channels. The library is fetched once from a CDN per
+// page-load so the bundle stays small. The component is resilient to
+// fast mount/unmount cycles (e.g. during HMR / route changes) — the
+// cleanup function is a no-op if the script never finished loading.
+export function InteractiveShader({ timeStep = 0.05 }: InteractiveShaderProps) {
+  const containerRef = useRef<HTMLDivElement | null>(null)
+  const stateRef = useRef<{
+    renderer: any | null
+    animationId: number | null
+    onResize: (() => void) | null
+    mounted: boolean
+  }>({
+    renderer: null,
+    animationId: null,
+    onResize: null,
+    mounted: true,
+  })
 
   useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
+    stateRef.current.mounted = true
 
-    const gl = canvas.getContext('webgl')
-    if (!gl) {
-      console.warn('InteractiveShader: WebGL is not supported in this browser.')
-      return
-    }
+    function init() {
+      const container = containerRef.current
+      const THREE = window.THREE
+      if (!container || !THREE || !stateRef.current.mounted) return
 
-    const vertexShaderSource = `
-      attribute vec2 aPosition;
-      void main() {
-        gl_Position = vec4(aPosition, 0.0, 1.0);
-      }
-    `
+      // Clear any prior content (HMR / re-init safety).
+      container.innerHTML = ''
 
-    const fragmentShaderSource = `
-      precision highp float;
-      uniform vec2 iResolution;
-      uniform float iTime;
-      uniform vec2 iMouse;
-      uniform float uFlowSpeed;
-      uniform float uColorIntensity;
-      uniform float uNoiseLayers;
-      uniform float uMouseInfluence;
+      const camera = new THREE.Camera()
+      camera.position.z = 1
 
-      #define MARCH_STEPS 32
+      const scene = new THREE.Scene()
+      const geometry = new THREE.PlaneBufferGeometry(2, 2)
 
-      float hash(vec2 p) {
-        p = fract(p * vec2(123.34, 456.21));
-        p += dot(p, p + 45.32);
-        return fract(p.x * p.y);
+      const uniforms = {
+        time: { type: 'f', value: 1.0 },
+        resolution: { type: 'v2', value: new THREE.Vector2() },
       }
 
-      float fbm(vec3 p) {
-        float f = 0.0;
-        float amp = 0.5;
-        for (int i = 0; i < 8; i++) {
-          if (float(i) >= uNoiseLayers) break;
-          f += amp * hash(p.xy);
-          p *= 2.0;
-          amp *= 0.5;
+      const vertexShader = `
+        void main() {
+          gl_Position = vec4(position, 1.0);
         }
-        return f;
-      }
+      `
 
-      float map(vec3 p) {
-        vec3 q = p;
-        q.z += iTime * uFlowSpeed;
-        vec2 mouse = (iMouse.xy / iResolution.xy - 0.5) * 2.0;
-        q.xy += mouse * uMouseInfluence;
-        float f = fbm(q * 2.0);
-        f *= sin(p.y * 2.0 + iTime) * 0.5 + 0.5;
-        return clamp(f, 0.0, 1.0);
-      }
+      const fragmentShader = `
+        #define TWO_PI 6.2831853072
+        #define PI 3.14159265359
 
-      void main() {
-        vec2 uv = (gl_FragCoord.xy - 0.5 * iResolution.xy) / iResolution.y;
-        vec3 ro = vec3(0, -1, 0);
-        vec3 rd = normalize(vec3(uv, 1.0));
-        vec3 col = vec3(0);
-        float t = 0.0;
+        precision highp float;
+        uniform vec2 resolution;
+        uniform float time;
 
-        for (int i = 0; i < MARCH_STEPS; i++) {
-          vec3 p = ro + rd * t;
-          float density = map(p);
-          if (density > 0.0) {
-            vec3 auroraColor = 0.5 + 0.5 * cos(iTime * 0.5 + p.y * 2.0 + vec3(0.0, 2.0, 4.0));
-            col += auroraColor * density * 0.1 * uColorIntensity;
+        float random(in float x) {
+          return fract(sin(x) * 1e4);
+        }
+        float random(vec2 st) {
+          return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+        }
+
+        varying vec2 vUv;
+
+        void main(void) {
+          vec2 uv = (gl_FragCoord.xy * 2.0 - resolution.xy) / min(resolution.x, resolution.y);
+
+          vec2 fMosaicScal = vec2(4.0, 2.0);
+          vec2 vScreenSize = vec2(256.0, 256.0);
+          uv.x = floor(uv.x * vScreenSize.x / fMosaicScal.x) / (vScreenSize.x / fMosaicScal.x);
+          uv.y = floor(uv.y * vScreenSize.y / fMosaicScal.y) / (vScreenSize.y / fMosaicScal.y);
+
+          float t = time * 0.06 + random(uv.x) * 0.4;
+          float lineWidth = 0.0008;
+
+          vec3 color = vec3(0.0);
+          for (int j = 0; j < 3; j++) {
+            for (int i = 0; i < 5; i++) {
+              color[j] += lineWidth * float(i * i) /
+                abs(fract(t - 0.01 * float(j) + float(i) * 0.01) * 1.0 - length(uv));
+            }
           }
-          t += 0.1;
+
+          gl_FragColor = vec4(color[2], color[1], color[0], 1.0);
         }
+      `
 
-        gl_FragColor = vec4(col, 1.0);
-      }
-    `
+      const material = new THREE.ShaderMaterial({
+        uniforms,
+        vertexShader,
+        fragmentShader,
+      })
 
-    function compileShader(source: string, type: number): WebGLShader | null {
-      const shader = gl!.createShader(type)
-      if (!shader) return null
-      gl!.shaderSource(shader, source)
-      gl!.compileShader(shader)
-      if (!gl!.getShaderParameter(shader, gl!.COMPILE_STATUS)) {
-        console.error(`InteractiveShader: shader compile error: ${gl!.getShaderInfoLog(shader)}`)
-        gl!.deleteShader(shader)
-        return null
+      const mesh = new THREE.Mesh(geometry, material)
+      scene.add(mesh)
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true })
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
+      container.appendChild(renderer.domElement)
+      stateRef.current.renderer = renderer
+
+      function onResize() {
+        if (!container) return
+        const rect = container.getBoundingClientRect()
+        renderer.setSize(rect.width, rect.height)
+        uniforms.resolution.value.x = renderer.domElement.width
+        uniforms.resolution.value.y = renderer.domElement.height
       }
-      return shader
+      onResize()
+      window.addEventListener('resize', onResize, false)
+      stateRef.current.onResize = onResize
+
+      function animate() {
+        if (!stateRef.current.mounted) return
+        stateRef.current.animationId = requestAnimationFrame(animate)
+        uniforms.time.value += timeStep
+        renderer.render(scene, camera)
+      }
+      animate()
     }
 
-    const vertexShader = compileShader(vertexShaderSource, gl.VERTEX_SHADER)
-    const fragmentShader = compileShader(fragmentShaderSource, gl.FRAGMENT_SHADER)
-    if (!vertexShader || !fragmentShader) return
-
-    const program = gl.createProgram()
-    if (!program) return
-    gl.attachShader(program, vertexShader)
-    gl.attachShader(program, fragmentShader)
-    gl.linkProgram(program)
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      console.error(`InteractiveShader: program link error: ${gl.getProgramInfoLog(program)}`)
-      return
+    // Reuse THREE if a prior mount already fetched it.
+    if (window.THREE) {
+      init()
     }
-    gl.useProgram(program)
-
-    const vertices = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1])
-    const vertexBuffer = gl.createBuffer()
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
-    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW)
-
-    const aPosition = gl.getAttribLocation(program, 'aPosition')
-    gl.enableVertexAttribArray(aPosition)
-    gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 0, 0)
-
-    const iResolutionLocation = gl.getUniformLocation(program, 'iResolution')
-    const iTimeLocation = gl.getUniformLocation(program, 'iTime')
-    const iMouseLocation = gl.getUniformLocation(program, 'iMouse')
-    const uFlowSpeedLocation = gl.getUniformLocation(program, 'uFlowSpeed')
-    const uColorIntensityLocation = gl.getUniformLocation(program, 'uColorIntensity')
-    const uNoiseLayersLocation = gl.getUniformLocation(program, 'uNoiseLayers')
-    const uMouseInfluenceLocation = gl.getUniformLocation(program, 'uMouseInfluence')
-
-    const startTime = performance.now()
-    let animationFrameId = 0
-
-    function handleMouseMove(e: MouseEvent) {
-      if (!canvas) return
-      const rect = canvas.getBoundingClientRect()
-      mousePos.current = {
-        x: (e.clientX - rect.left) / rect.width,
-        y: (e.clientY - rect.top) / rect.height,
+    else {
+      const existing = document.querySelector<HTMLScriptElement>(`script[src="${THREE_SRC}"]`)
+      if (existing) {
+        // Another instance is loading the same script; wait for it.
+        existing.addEventListener('load', init)
+      }
+      else {
+        const script = document.createElement('script')
+        script.src = THREE_SRC
+        script.async = true
+        script.onload = init
+        document.head.appendChild(script)
       }
     }
-    window.addEventListener('mousemove', handleMouseMove)
-
-    function resizeCanvas() {
-      if (!canvas) return
-      const dpr = Math.min(window.devicePixelRatio || 1, 2)
-      canvas.width = Math.floor(canvas.clientWidth * dpr)
-      canvas.height = Math.floor(canvas.clientHeight * dpr)
-      gl!.viewport(0, 0, gl!.canvas.width, gl!.canvas.height)
-      gl!.uniform2f(iResolutionLocation, gl!.canvas.width, gl!.canvas.height)
-    }
-    window.addEventListener('resize', resizeCanvas)
-    resizeCanvas()
-
-    function renderLoop() {
-      if (!gl || gl.isContextLost()) return
-      const currentTime = performance.now()
-      gl.uniform1f(iTimeLocation, (currentTime - startTime) / 1000.0)
-      gl.uniform2f(
-        iMouseLocation,
-        mousePos.current.x * canvas!.width,
-        (1.0 - mousePos.current.y) * canvas!.height,
-      )
-      gl.uniform1f(uFlowSpeedLocation, flowSpeed)
-      gl.uniform1f(uColorIntensityLocation, colorIntensity)
-      gl.uniform1f(uNoiseLayersLocation, noiseLayers)
-      gl.uniform1f(uMouseInfluenceLocation, mouseInfluence)
-      gl.drawArrays(gl.TRIANGLES, 0, 6)
-      animationFrameId = requestAnimationFrame(renderLoop)
-    }
-    renderLoop()
 
     return () => {
-      cancelAnimationFrame(animationFrameId)
-      window.removeEventListener('resize', resizeCanvas)
-      window.removeEventListener('mousemove', handleMouseMove)
-      if (gl && !gl.isContextLost()) {
-        gl.deleteProgram(program)
-        gl.deleteShader(vertexShader)
-        gl.deleteShader(fragmentShader)
-        gl.deleteBuffer(vertexBuffer)
+      stateRef.current.mounted = false
+      if (stateRef.current.animationId !== null) {
+        cancelAnimationFrame(stateRef.current.animationId)
       }
+      if (stateRef.current.onResize) {
+        window.removeEventListener('resize', stateRef.current.onResize)
+      }
+      if (stateRef.current.renderer) {
+        try { stateRef.current.renderer.dispose() }
+        catch { /* renderer may already be torn down */ }
+      }
+      // Intentionally keep the script in <head> — re-mounts (HMR,
+      // route changes) get a fast cache hit and skip the download.
     }
-  }, [flowSpeed, colorIntensity, noiseLayers, mouseInfluence])
+  }, [timeStep])
 
   return (
-    <canvas
-      ref={canvasRef}
+    <div
+      ref={containerRef}
       className="shader-canvas"
       aria-hidden
     />
