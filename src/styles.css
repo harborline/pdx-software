@@ -635,7 +635,6 @@ h1 {
      No gradient layer — the shader runs full-bleed under the hero
      copy and the rest of the layout sits on the page surface. */
   background: transparent;
-  border-bottom: 1px solid var(--line);
   isolation: isolate;
   overflow: hidden;
   color: #f1f1f1;
@@ -704,10 +703,14 @@ h1 {
   width: 100%;
   height: 100%;
   display: block;
-  /* Light blur softens the noise so the aurora reads as a watercolour
-     wash rather than a crisp pattern. Pairs with the masked edges
-     for a fully feathered hero. */
-  filter: blur(6px);
+  /* Heavy blur — the FBM noise reads as a soft watercolour wash
+     rather than a discernible pattern. Combined with the four-sided
+     mask the hero turns into an ambient colour field, not a graphic.
+     `scale(1.08)` over-renders so the blur halo doesn't expose the
+     canvas's literal edges as transparent strips. */
+  filter: blur(28px);
+  transform: scale(1.08);
+  transform-origin: center;
 }
 
 .hero-carousel .domain {
