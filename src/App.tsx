@@ -1,5 +1,6 @@
 import { ArrowRight, ArrowUpRight, Mail } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import { InteractiveShader } from './components/InteractiveShader'
 import { type AppRecord, apps, getAppBySlug, homeCarouselLines, legalEmail, principles } from './lib/content'
 
 type SiteMode = 'holding' | 'product'
@@ -164,6 +165,11 @@ function HeroCarousel({ navigate }: { navigate: (path: string) => void }) {
 
   return (
     <section className="hero-carousel">
+      {/* WebGL aurora background. The shader is pointer-events:none in
+          CSS so the hero text + dots above it stay clickable. */}
+      <div className="hero-shader" aria-hidden>
+        <InteractiveShader />
+      </div>
       <p className="domain">PDX Software</p>
       <div className="hero-line-wrap" aria-live="polite">
         {/* Render only the active line. The `key` change forces React
@@ -217,10 +223,11 @@ function AppCard({ app, navigate }: { app: AppRecord, navigate: (path: string) =
         <Icon size={app.featured ? 28 : 22} aria-hidden="true" />
       </div>
       <div className="app-card-body">
-        <div className="app-card-head">
-          <h3>{app.name}</h3>
-          <span className="app-card-status">{app.status}</span>
-        </div>
+        {/* Title on its own row so a long name doesn't have to fight
+            the status chip for horizontal space. The status moves to
+            its own line below, rendered as a pill chip. */}
+        <h3 className="app-card-title">{app.name}</h3>
+        <span className="app-card-status">{app.status}</span>
         <p>{app.description}</p>
         <span className="app-card-cta">
           {app.ctaLabel}

@@ -628,12 +628,85 @@ h1 {
 
 /* ── Hero carousel ───────────────────────────────────────────── */
 .hero-carousel {
+  position: relative;
   text-align: center;
   padding: clamp(48px, 8vw, 120px) 24px clamp(40px, 6vw, 80px);
-  background:
-    radial-gradient(900px 360px at 50% 0%, rgba(23,105,224,0.10), transparent 70%),
-    linear-gradient(180deg, var(--surface), transparent);
+  /* Background is drawn by the WebGL shader inside `.hero-shader`.
+     No gradient layer — the shader runs full-bleed under the hero
+     copy and the rest of the layout sits on the page surface. */
+  background: transparent;
   border-bottom: 1px solid var(--line);
+  isolation: isolate;
+  overflow: hidden;
+  color: #f1f1f1;
+}
+
+.hero-carousel .domain {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.hero-carousel .hero-line {
+  color: #ffffff;
+}
+
+.hero-carousel .hero-byline {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.hero-carousel .hero-byline a {
+  color: #c9dcff;
+}
+
+.hero-carousel .hero-dot {
+  background: rgba(255, 255, 255, 0.25);
+}
+.hero-carousel .hero-dot.is-active {
+  background: #ffffff;
+}
+
+.hero-shader {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  /* Soft top + bottom fades so the shader blends into the page
+     surface rather than slicing in on a hard edge. */
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    transparent 0%,
+    #000 12%,
+    #000 88%,
+    transparent 100%
+  );
+          mask-image: linear-gradient(
+    180deg,
+    transparent 0%,
+    #000 12%,
+    #000 88%,
+    transparent 100%
+  );
+}
+
+.hero-shader::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  /* Subtle vignette darkens the corners so the centred copy keeps
+     its contrast against the swirling aurora colours. */
+  background: radial-gradient(
+    1200px 600px at 50% 50%,
+    transparent 0%,
+    rgba(0, 0, 0, 0.35) 100%
+  );
+  pointer-events: none;
+}
+
+.shader-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .hero-carousel .domain {
@@ -785,30 +858,43 @@ h1 {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  /* Tight first three rows (title → status chip → description) then
+     a bit more air before the CTA so the link sits visually anchored
+     at the bottom of the card. The CTA gains its own `margin-top:
+     auto` to push it down when the card is taller than its content. */
+  gap: 10px;
 }
 
-.app-card-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 8px;
-}
-
-.app-card-head h3 {
+.app-card-title {
   margin: 0;
   font-size: 18px;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
 }
 
-.app-card.is-featured .app-card-head h3 {
+.app-card.is-featured .app-card-title {
   font-size: 22px;
 }
 
 .app-card-status {
+  /* Pill chip: rounded fill against the accent tone of the card so
+     the status reads as a tag rather than a quiet caption. The
+     specific accent colour comes from `app.accent` via inline style
+     on the card root; the chip inherits via `color-mix` against the
+     surface to keep contrast safe on light + dark cards alike. */
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.06);
+  color: var(--muted);
   font-size: 11px;
+  font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--muted);
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .app-card-body p {
@@ -819,7 +905,10 @@ h1 {
 }
 
 .app-card-cta {
-  margin-top: 4px;
+  /* Push the CTA to the bottom so cards in the same row align on the
+     CTA baseline even when descriptions wrap to different heights. */
+  margin-top: auto;
+  padding-top: 6px;
   font-size: 13px;
   color: var(--accent);
   font-weight: 600;
