@@ -1,6 +1,6 @@
-import { ArrowRight, Mail } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, Mail } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
-import { legalEmail } from './lib/content'
+import { type AppRecord, apps, getAppBySlug, homeCarouselLines, legalEmail, principles } from './lib/content'
 
 type SiteMode = 'holding' | 'product'
 
@@ -20,7 +20,6 @@ function usePathname() {
         window.location.href = path
         return
       }
-
       window.history.pushState({}, '', path)
       setPathname(path)
       window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -31,17 +30,12 @@ function usePathname() {
 function getSiteMode(): SiteMode {
   if (window.location.hostname === 'pdx.software' || window.location.hostname === 'www.pdx.software')
     return 'product'
-
   return 'holding'
 }
 
 function resolvePath(pathname: string, mode: SiteMode) {
-  if (mode === 'product' && pathname === '/')
-    return '/about'
-
-  if (pathname === '/marketing')
-    return '/about'
-
+  if (mode === 'product' && pathname === '/about') return '/'
+  if (pathname === '/marketing') return '/'
   return pathname
 }
 
@@ -67,8 +61,10 @@ function Shell({
     )
   }
 
+  const featured = apps.filter(a => a.featured)
   const nav = [
-    { href: '/about', label: 'About' },
+    { href: '/', label: 'Apps' },
+    ...featured.map(a => ({ href: `/${a.slug}`, label: a.name })),
     { href: '/support', label: 'Support' },
     { href: '/privacy', label: 'Privacy' },
     { href: '/terms', label: 'Terms' },
@@ -79,25 +75,22 @@ function Shell({
       <header className="site-header">
         <a
           className="brand"
-          href="/about"
+          href="/"
           onClick={(event) => {
             event.preventDefault()
-            navigate('/about')
+            navigate('/')
           }}
         >
           <span className="brand-mark" aria-hidden="true" />
-          <span>App Sweep</span>
+          <span>PDX Software</span>
         </a>
         <nav className="nav-links" aria-label="Primary navigation">
-          {nav.map((item) => (
+          {nav.map(item => (
             <a
               key={item.href}
               className={pathname === item.href ? 'is-active' : undefined}
               href={item.href}
               onClick={(event) => {
-                if (item.href.startsWith('#'))
-                  return
-
                 event.preventDefault()
                 navigate(item.href)
               }}
@@ -107,26 +100,21 @@ function Shell({
           ))}
         </nav>
       </header>
-
       <main>{children}</main>
-
       <footer className="site-footer">
         <div>
-          <p>© 2026 Harborline Holdings</p>
+          <p>© 2026 Harborline Holdings · PDX Software</p>
         </div>
         <div className="footer-links">
           {[
             { href: '/privacy', label: 'Privacy' },
             { href: '/terms', label: 'Terms' },
             { href: '/support', label: 'Support' },
-          ].map((link) => (
+          ].map(link => (
             <a
-              href={link.href}
               key={link.href}
+              href={link.href}
               onClick={(event) => {
-                if (!link.href.startsWith('/'))
-                  return
-
                 event.preventDefault()
                 navigate(link.href)
               }}
@@ -140,7 +128,7 @@ function Shell({
   )
 }
 
-function HomePage() {
+function HoldingHome() {
   return (
     <section className="holding-home" aria-labelledby="holding-title">
       <div className="holding-heading">
@@ -159,34 +147,176 @@ function HomePage() {
   )
 }
 
-function AboutPage() {
+function HeroCarousel({ navigate }: { navigate: (path: string) => void }) {
+  const lines = useMemo(homeCarouselLines, [])
+  const [index, setIndex] = useState(0)
+
+  useEffect(() => {
+    if (lines.length <= 1) return
+    const id = window.setInterval(() => {
+      setIndex(i => (i + 1) % lines.length)
+    }, 4200)
+    return () => window.clearInterval(id)
+  }, [lines.length])
+
+  const current = lines[index]
+  if (!current) return null
+
+  return (
+    <section className="hero-carousel">
+      <p className="domain">PDX Software</p>
+      <div className="hero-line-wrap" aria-live="polite">
+        {lines.map((entry, i) => (
+          <h1
+            key={i}
+            className={`hero-line ${i === index ? 'is-visible' : ''}`}
+            aria-hidden={i === index ? undefined : true}
+          >
+            {entry.line}
+          </h1>
+        ))}
+      </div>
+      <p className="hero-byline">
+        Currently:{' '}
+        <a
+          href={`/${current.app.slug}`}
+          onClick={(e) => {
+            e.preventDefault()
+            navigate(`/${current.app.slug}`)
+          }}
+        >
+          {current.app.name}
+        </a>
+      </p>
+      <div className="hero-dots" role="tablist" aria-label="Hero slides">
+        {lines.map((_, i) => (
+          <button
+            key={i}
+            type="button"
+            className={`hero-dot ${i === index ? 'is-active' : ''}`}
+            aria-label={`Slide ${i + 1}`}
+            aria-selected={i === index}
+            onClick={() => setIndex(i)}
+          />
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function AppCard({ app, navigate }: { app: AppRecord, navigate: (path: string) => void }) {
+  const Icon = app.Icon
+  const target = app.ctaHref.startsWith('/') ? app.ctaHref : `/${app.slug}`
+  return (
+    <a
+      className={`app-card ${app.featured ? 'is-featured' : ''}`}
+      href={target}
+      onClick={(event) => {
+        event.preventDefault()
+        navigate(target)
+      }}
+    >
+      <div className="app-card-logo" style={{ background: `${app.accent}1a`, color: app.accent }}>
+        <Icon size={app.featured ? 28 : 22} aria-hidden="true" />
+      </div>
+      <div className="app-card-body">
+        <div className="app-card-head">
+          <h3>{app.name}</h3>
+          <span className="app-card-status">{app.status}</span>
+        </div>
+        <p>{app.description}</p>
+        <span className="app-card-cta">
+          {app.ctaLabel}
+          <ArrowRight size={14} aria-hidden />
+        </span>
+      </div>
+    </a>
+  )
+}
+
+function HomePage({ navigate }: { navigate: (path: string) => void }) {
+  const featured = apps.filter(a => a.featured)
+  const rest = apps.filter(a => !a.featured)
+  return (
+    <>
+      <HeroCarousel navigate={navigate} />
+
+      <section className="section">
+        <h2 className="section-title">Featured apps</h2>
+        <div className="app-grid is-featured-grid">
+          {featured.map(app => (
+            <AppCard key={app.slug} app={app} navigate={navigate} />
+          ))}
+        </div>
+      </section>
+
+      {rest.length > 0 && (
+        <section className="section">
+          <h2 className="section-title">More from PDX Software</h2>
+          <div className="app-grid">
+            {rest.map(app => (
+              <AppCard key={app.slug} app={app} navigate={navigate} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section className="section principles">
+        <h2 className="section-title">How we build</h2>
+        <div className="principles-grid">
+          {principles.map((p) => {
+            const PIcon = p.Icon
+            return (
+              <article key={p.title} className="principle-card">
+                <PIcon size={20} aria-hidden />
+                <h3>{p.title}</h3>
+                <p>{p.body}</p>
+              </article>
+            )
+          })}
+        </div>
+      </section>
+
+      <ContactBand />
+    </>
+  )
+}
+
+function AppMarketingPage({ app, navigate }: { app: AppRecord, navigate: (path: string) => void }) {
+  const Icon = app.Icon
+  const external = app.ctaHref.startsWith('http') || app.ctaHref.startsWith('mailto:')
   return (
     <>
       <section className="page-hero compact">
-        <p className="domain">App Sweep</p>
-        <h1>Force quit and trash Mac apps in one clean step.</h1>
-        <p>
-          App Sweep is a compact macOS utility from Harborline Holdings. It helps users review
-          selected app bundles, quit matching running processes, move apps to Trash, and empty
-          Trash from the same focused window.
-        </p>
+        <div className="page-hero-logo" style={{ background: `${app.accent}1a`, color: app.accent }}>
+          <Icon size={28} aria-hidden />
+        </div>
+        <p className="domain">{app.name}</p>
+        <h1>{app.tagline}</h1>
+        <p>{app.description}</p>
+        <a
+          className="button button-primary"
+          href={app.ctaHref}
+          onClick={(event) => {
+            if (external) return
+            event.preventDefault()
+            navigate(app.ctaHref)
+          }}
+        >
+          {app.ctaLabel}
+          {external ? <ArrowUpRight size={16} aria-hidden /> : <ArrowRight size={16} aria-hidden />}
+        </a>
       </section>
-      <section className="section detail-grid">
-        <article>
-          <h2>Built for review before removal</h2>
-          <p>
-            App Sweep keeps selected app paths visible before the user confirms any action. It
-            moves apps to Trash rather than permanently deleting them.
-          </p>
-        </article>
-        <article>
-          <h2>Permission-aware by design</h2>
-          <p>
-            macOS may ask for Finder automation, Full Disk Access, or administrator approval. App
-            Sweep explains those prompts and never bypasses macOS security controls.
-          </p>
-        </article>
-      </section>
+      {app.features.length > 0 && (
+        <section className="section detail-grid">
+          {app.features.map(f => (
+            <article key={f.title}>
+              <h2>{f.title}</h2>
+              <p>{f.body}</p>
+            </article>
+          ))}
+        </section>
+      )}
       <ContactBand />
     </>
   )
@@ -194,23 +324,44 @@ function AboutPage() {
 
 function PrivacyPage() {
   return (
-    <LegalPage title="Privacy Policy" updated="May 16, 2026">
+    <LegalPage title="Privacy Policy" updated="May 17, 2026">
       <p>
-        This page covers App Sweep and the pdx.software product pages. Harborline Holdings operates
-        the holding company site at harborline.cloud. Fly remains a separate link tracking and click
-        analytics product at fly.pm.
+        This policy covers every product PDX Software publishes — currently App Sweep, Fly Mail,
+        Fly, and the Harborline Labs experiments — and the marketing pages at pdx.software.
+        Harborline Holdings is the company behind PDX Software.
       </p>
-      <h2>App Sweep</h2>
+      <h2>What each product collects</h2>
+      <h3>App Sweep (macOS desktop)</h3>
       <p>
-        App Sweep does not collect analytics, create accounts, transmit selected app paths, or send
-        app-removal activity to Harborline. Settings such as theme, menu bar visibility, confetti,
-        and review prompt state stay in local macOS preferences.
+        Does not collect analytics, create accounts, transmit selected app paths, or send removal
+        activity to a server. Theme, menu-bar visibility, confetti, and review-prompt state stay
+        in local macOS preferences.
       </p>
-      <h2>Company website</h2>
+      <h3>Fly Mail (mail.fly.pm)</h3>
       <p>
-        pdx.software is a static App Sweep product site served by Cloudflare Workers. The backend
-        exposes basic product and status endpoints. We do not add advertising pixels or session
-        replay.
+        Stores the contents of mailboxes a user explicitly hosts on Fly Mail or imports from a
+        Gmail account they've linked. Cloudflare D1 + R2 are the storage backends. Sent-message
+        tracking via fly.pm is opt-out per send; inbound third-party tracking pixels are stripped
+        and outbound link clicks route through a no-referrer proxy. AI labelling runs through
+        Cloudflare AI Gateway with the dynamic-route convention; the underlying provider sees
+        only the content needed to classify a single message at a time.
+      </p>
+      <h3>Fly (fly.pm)</h3>
+      <p>
+        Records short-link clicks in Cloudflare Analytics Engine: timestamp, slug, target URL,
+        approximate geo (city/region/country) from the request, and a User-Agent-derived
+        browser/OS string. Per-user link ownership is tied to a Fly account.
+      </p>
+      <h3>Marketing site (pdx.software)</h3>
+      <p>
+        Static pages served by Cloudflare Workers with a small Hono backend for product + status
+        endpoints. No advertising pixels, no session replay, no third-party analytics.
+      </p>
+      <h2>Shared infrastructure</h2>
+      <p>
+        Every product runs on Cloudflare Workers in the same account. Cloudflare may keep
+        operational logs of HTTPS requests under their privacy policy; PDX Software does not
+        retain those logs ourselves.
       </p>
       <h2>Contact</h2>
       <p>
@@ -222,22 +373,36 @@ function PrivacyPage() {
 
 function TermsPage() {
   return (
-    <LegalPage title="Terms of Service" updated="May 16, 2026">
+    <LegalPage title="Terms of Service" updated="May 17, 2026">
       <p>
-        These terms apply to App Sweep and the pdx.software product pages. Product-specific services
-        may include additional terms when needed.
+        These terms cover every product PDX Software publishes and the marketing pages at
+        pdx.software. Each product may extend these with product-specific terms surfaced inside
+        the product itself.
       </p>
-      <h2>Use of App Sweep</h2>
+      <h2>Acceptable use</h2>
       <p>
-        You are responsible for reviewing selected apps before confirming removal. App Sweep moves
-        selected app bundles to Trash and may ask Finder to empty Trash only when you choose that
-        action.
+        Use the products lawfully and as documented. Don't try to circumvent platform security
+        (macOS prompts in App Sweep, Cloudflare auth in Fly Mail, rate limits in Fly), abuse
+        third-party services through the products, or use them to send unsolicited bulk mail.
       </p>
-      <h2>macOS permissions</h2>
+      <h2>App Sweep</h2>
       <p>
-        Some apps require macOS approval, administrator authentication, Full Disk Access, or Finder
-        automation permission. App Sweep cannot grant itself those permissions or bypass system
-        prompts.
+        You are responsible for reviewing selected apps before confirming removal. App Sweep
+        moves selected bundles to Trash and asks Finder to empty Trash only when you choose that
+        action. macOS may require administrator authentication or Full Disk Access. App Sweep
+        cannot grant itself those permissions or bypass system prompts.
+      </p>
+      <h2>Fly Mail</h2>
+      <p>
+        Fly Mail accounts are personal to the signed-in user. Outbound mail uses Cloudflare Email
+        Service and is subject to its sending limits. Tracked sends include a transparent pixel
+        and rewritten links unless the user disables tracking on a per-send basis.
+      </p>
+      <h2>Fly</h2>
+      <p>
+        Short links must not redirect to malware, phishing, or content that violates the host's
+        terms. We reserve the right to disable any link that does. Per-account link quotas are
+        documented in the Fly dashboard.
       </p>
       <h2>Support</h2>
       <p>
@@ -252,32 +417,24 @@ function SupportPage() {
     <>
       <section className="page-hero compact">
         <p className="domain">Support</p>
-        <h1>Help for App Sweep.</h1>
+        <h1>Help across every PDX Software product.</h1>
         <p>
-          For App Sweep support, include your macOS version, the app you were trying to remove, and
-          any macOS error message you saw.
+          Include the product name, the macOS or browser version, and any error message you saw.
+          For Fly Mail and Fly we'll also need the signed-in email address so we can look the
+          account up.
         </p>
         <a className="button button-primary" href={`mailto:${legalEmail}`}>
           Email support
-          <Mail size={18} aria-hidden="true" />
+          <Mail size={18} aria-hidden />
         </a>
       </section>
       <section className="section support-list">
-        <article>
-          <h2>App Sweep</h2>
-          <p>
-            Most removal issues come from macOS permissions or administrator-owned apps in
-            /Applications. App Sweep can guide you to the right settings, but macOS may still ask
-            for your password.
-          </p>
-        </article>
-        <article>
-          <h2>Fly</h2>
-          <p>
-            Fly remains the link tracking and click analytics product at fly.pm. Keep link tracking
-            support separate from the Harborline company site when reporting issues.
-          </p>
-        </article>
+        {apps.map(a => (
+          <article key={a.slug}>
+            <h2>{a.name}</h2>
+            <p>{a.description}</p>
+          </article>
+        ))}
       </section>
     </>
   )
@@ -294,7 +451,7 @@ function LegalPage({
 }) {
   return (
     <article className="legal-page">
-      <p className="domain">Harborline Holdings</p>
+      <p className="domain">PDX Software</p>
       <h1>{title}</h1>
       <p className="updated">Updated {updated}</p>
       <div className="legal-copy">{children}</div>
@@ -307,11 +464,11 @@ function ContactBand() {
     <section id="contact" className="contact-band">
       <div>
         <h2>Contact support</h2>
-        <p>Product support, App Store review questions, and company inquiries can start here.</p>
+        <p>Product support, App Store review questions, and company inquiries all start here.</p>
       </div>
       <a className="button button-primary" href={`mailto:${legalEmail}`}>
         {legalEmail}
-        <ArrowRight size={18} aria-hidden="true" />
+        <ArrowRight size={18} aria-hidden />
       </a>
     </section>
   )
@@ -322,13 +479,18 @@ export default function App() {
   const mode = getSiteMode()
   const currentPath = resolvePath(pathname, mode)
   const page = useMemo(() => {
-    if (mode === 'holding')
-      return <HomePage />
+    if (mode === 'holding') return <HoldingHome />
+
+    // App marketing pages: /<slug>
+    if (currentPath.startsWith('/') && currentPath.length > 1) {
+      const slug = currentPath.slice(1).replace(/\/.*$/, '')
+      const app = getAppBySlug(slug)
+      if (app) return <AppMarketingPage app={app} navigate={navigate} />
+    }
 
     switch (currentPath) {
-      case '/marketing':
-      case '/about':
-        return <AboutPage />
+      case '/':
+        return <HomePage navigate={navigate} />
       case '/privacy':
         return <PrivacyPage />
       case '/terms':
@@ -337,9 +499,9 @@ export default function App() {
       case '/support':
         return <SupportPage />
       default:
-        return <HomePage />
+        return <HomePage navigate={navigate} />
     }
-  }, [currentPath, mode])
+  }, [currentPath, mode, navigate])
 
   return (
     <Shell mode={mode} pathname={currentPath} navigate={navigate}>
