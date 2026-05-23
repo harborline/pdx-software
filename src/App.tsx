@@ -330,7 +330,7 @@ function AppMarketingPage({ app, navigate }: { app: AppRecord, navigate: (path: 
 
 function PrivacyPage() {
   return (
-    <LegalPage title="Privacy Policy" updated="May 17, 2026">
+    <LegalPage title="Privacy Policy" updated="May 23, 2026">
       <p>
         This policy covers every product PDX Software publishes — currently App Sweep, Prompt
         Producer, Fly, and the Harborline Labs experiments — and the marketing pages at
@@ -354,6 +354,98 @@ function PrivacyPage() {
         notes, files, and storage resources. Cloudflare D1, R2, Vectorize, AutoRAG, and AI Gateway
         power the connected knowledge layer and AI search. Short-link analytics can include
         timestamp, slug, target URL, approximate geo from the request, and a browser/OS string.
+      </p>
+      <h2>Google user data used by Fly</h2>
+      <p>
+        Fly lets a user connect a Google account so the app can provide an AI-first productivity
+        workspace across email, contacts, calendar, notes, tasks, links, and the user's Fly
+        knowledge base. Fly's use and transfer of information received from Google APIs adheres
+        to the Google API Services User Data Policy, including the Limited Use requirements.
+      </p>
+      <h3>Data accessed</h3>
+      <p>
+        When a user signs in with Google, Fly receives basic Google account identity data: the
+        user's Google account id, name, email address, and profile image if Google provides one.
+        When the user connects Gmail, Fly accesses Gmail profile metadata, labels, message ids,
+        thread ids, message headers, recipients, senders, subjects, snippets, timestamps, message
+        bodies, attachments available through the Gmail message payload, label changes, and
+        history records needed for incremental sync. When the user enables Google Contacts, Fly
+        accesses saved contacts and other contacts such as names, email addresses, phone numbers,
+        organizations, addresses, URLs, birthdays, profile photos, and biographies when available
+        from Google's People API. When the user enables Google Calendar, Fly accesses the user's
+        calendar list, calendar ids, calendar names, colors, access roles, selected sync state,
+        event ids, event titles, event descriptions, event links, start and end times, time zones,
+        and cancellation status for selected calendars.
+      </p>
+      <h3>Data usage</h3>
+      <p>
+        Fly uses Google user data only to provide user-facing workspace features that are visible
+        in the app: account login, connected inbox import, message search, AI-assisted inbox
+        triage, labels, summaries, reminders, follow-up tasks, contact autocomplete, calendar
+        overlays, daily overviews, calendar-linked tasks, and knowledge-base search across the
+        user's connected information. Fly may process Gmail message text, contact records, and
+        calendar event text through Cloudflare AI Gateway, embeddings, and retrieval services only
+        to classify, summarize, search, or generate follow-up context for that user's workspace.
+      </p>
+      <h3>Why the Google OAuth scopes are needed</h3>
+      <p>
+        Fly requests <code>openid</code>, <code>email</code>, and <code>profile</code> to create
+        and secure the user's Fly account and show the correct signed-in identity. Fly requests
+        <code>https://www.googleapis.com/auth/gmail.modify</code> because the inbox feature must
+        import messages and threads, read labels and history for incremental sync, and apply or
+        update labels when the user performs inbox actions in Fly; read-only Gmail scopes would
+        not support the visible label-management and mailbox-triage actions. Fly requests
+        <code>https://www.googleapis.com/auth/contacts.readonly</code> to show saved Google
+        contacts in recipient autocomplete and contact search. Fly requests
+        <code>https://www.googleapis.com/auth/contacts.other.readonly</code> to include email
+        addresses from people the user has interacted with but has not saved as formal contacts,
+        which is necessary for useful compose autocomplete. Fly requests
+        <code>https://www.googleapis.com/auth/calendar.readonly</code> to list calendars and show
+        events in the user's workspace. Fly requests
+        <code>https://www.googleapis.com/auth/calendar.events</code> only for calendar surfaces
+        where the user chooses to create or update events from Fly; read-only calendar scopes
+        would not allow those user-directed edits.
+      </p>
+      <h3>Data sharing</h3>
+      <p>
+        Fly does not sell Google user data, share it with advertising platforms, share it with
+        data brokers, use it for retargeting or interest-based advertising, or use it to determine
+        creditworthiness. Google user data is shared only with service providers needed to run the
+        user-visible product: Cloudflare infrastructure services that host Fly, store the user's
+        account and workspace data, cache short-lived access tokens, run Workers, D1, R2,
+        Vectorize, AutoRAG, Analytics Engine, and route AI requests through Cloudflare AI Gateway.
+        These providers process data only to operate Fly's app features, protect the service,
+        troubleshoot abuse or security issues, or comply with law.
+      </p>
+      <h3>Data storage and protection</h3>
+      <p>
+        Fly stores connected Google account records, OAuth refresh tokens, synced mail metadata
+        and message content, contact records, selected calendar settings, calendar event copies,
+        generated labels, summaries, embeddings, and search indexes in Cloudflare-backed storage.
+        Data is encrypted in transit with HTTPS and protected at rest by the underlying Cloudflare
+        services. Access to production data is limited to the systems and operators needed to run,
+        debug, secure, or legally support the service. Humans do not read Google message, contact,
+        calendar, or file-derived data unless the user asks for support involving specific data,
+        access is necessary to investigate abuse or security issues, or access is required by law.
+      </p>
+      <h3>AI and model training</h3>
+      <p>
+        Fly does not use Google Workspace API data to train or improve generalized AI or machine
+        learning models. Google user data may be sent through Cloudflare AI Gateway or embedding
+        services only to provide the user's requested Fly features, such as inbox classification,
+        search, summaries, daily briefs, and follow-up suggestions inside that user's workspace.
+      </p>
+      <h3>Data retention and deletion</h3>
+      <p>
+        Fly keeps Google-derived workspace data while the user's Fly account or linked Google
+        account remains active so the app can sync mail, contacts, calendars, search indexes, and
+        related productivity features. A user can revoke Fly's Google access from their Google
+        Account permissions page, disconnect or re-link Google inside Fly when those controls are
+        available, or request deletion by emailing <a href={`mailto:${legalEmail}`}>{legalEmail}</a>.
+        After a deletion request, Fly deletes the user's account data and Google-derived workspace
+        data from active systems within 30 days unless retention is required for security, abuse
+        prevention, legal compliance, or backup recovery. Backups and operational logs are deleted
+        or overwritten on their normal retention cycle.
       </p>
       <h3>Marketing site (pdx.software)</h3>
       <p>
