@@ -15,7 +15,7 @@ app.get('/api/status', (c) => {
     service: 'harborline.cloud',
     company: 'Harborline Holdings',
     productDomain: 'pdx.software',
-    products: ['App Sweep', 'Fly'],
+    products: ['App Sweep', 'Prompt Producer', 'Fly'],
     purpose: 'Holding company website and product support surface',
   })
 })
@@ -31,6 +31,11 @@ app.get('/api/company', (c) => {
         name: 'App Sweep',
         category: 'Mac utility',
         url: 'https://pdx.software/about',
+      },
+      {
+        name: 'Prompt Producer',
+        category: 'App Store prompt utility',
+        url: 'https://apps.apple.com/app/id6772548801',
       },
       {
         name: 'Fly',

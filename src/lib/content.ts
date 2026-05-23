@@ -8,6 +8,7 @@ import {
   Mail,
   MessageCircle,
   ShieldCheck,
+  Sparkles,
   Wand2,
 } from 'lucide-react'
 
@@ -24,6 +25,8 @@ export interface AppRecord {
   description: string
   ctaLabel: string
   ctaHref: string
+  /** Optional home-card destination when the card should leave the site directly. */
+  cardHref?: string
   status: string
   /** Top-of-grid featured cards get the bigger tile + logo treatment. */
   featured: boolean
@@ -64,6 +67,37 @@ export const apps: AppRecord[] = [
     ],
     carouselLines: [
       '1-Click to Quit, Delete, & Empty the Trash Bin.',
+    ],
+  },
+  {
+    slug: 'prompt-producer',
+    name: 'Prompt Producer',
+    tagline: 'Turn rough ideas into polished prompts.',
+    description:
+      'An App Store app for drafting, refining, and reusing prompts for everyday AI work.',
+    ctaLabel: 'Open in App Store',
+    ctaHref: 'https://apps.apple.com/app/id6772548801',
+    cardHref: 'https://apps.apple.com/app/id6772548801',
+    status: 'App Store',
+    featured: true,
+    Icon: Sparkles,
+    accent: '#b7791f',
+    features: [
+      {
+        title: 'Prompt-ready drafts',
+        body: 'Start from a rough request and shape it into clear instructions for coding, writing, research, or planning.',
+      },
+      {
+        title: 'Reusable patterns',
+        body: 'Keep useful prompt structures close at hand so repeated AI workflows start from a better baseline.',
+      },
+      {
+        title: 'Available on the App Store',
+        body: 'Install Prompt Producer from its Apple App Store listing using the linked app id.',
+      },
+    ],
+    carouselLines: [
+      'Prompt Producer turns rough requests into reusable prompts.',
     ],
   },
   {

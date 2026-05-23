@@ -2,7 +2,7 @@
 
 React SPA plus Hono-backed Cloudflare Worker for `https://harborline.cloud` and `https://pdx.software`.
 
-`harborline.cloud` is the holding-company surface for Harborline Holdings. `pdx.software` serves App Sweep about/support/legal pages. `fly.pm` remains the link tracking and click analytics product.
+`harborline.cloud` is the holding-company surface for Harborline Holdings. `pdx.software` serves product/support/legal pages for PDX Software apps. `fly.pm` remains the link tracking and click analytics product.
 
 ## Local Development
 
@@ -18,6 +18,7 @@ pnpm preview
 
 - `harborline.cloud/` - holding company home
 - `pdx.software/about` - App Sweep about page for App Store metadata
+- `pdx.software/prompt-producer` - Prompt Producer page with App Store link
 - `pdx.software/support` - product support page
 - `pdx.software/privacy` - privacy policy
 - `pdx.software/terms` and `pdx.software/tos` - terms

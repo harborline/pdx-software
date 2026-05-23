@@ -210,7 +210,8 @@ function HeroCarousel({ navigate }: { navigate: (path: string) => void }) {
 
 function AppCard({ app, navigate }: { app: AppRecord, navigate: (path: string) => void }) {
   const Icon = app.Icon
-  const target = app.ctaHref.startsWith('/') ? app.ctaHref : `/${app.slug}`
+  const target = app.cardHref ?? (app.ctaHref.startsWith('/') ? app.ctaHref : `/${app.slug}`)
+  const external = target.startsWith('http') || target.startsWith('mailto:')
   return (
     <a
       className={`app-card ${app.featured ? 'is-featured' : ''}`}
@@ -232,7 +233,7 @@ function AppCard({ app, navigate }: { app: AppRecord, navigate: (path: string) =
         <p>{app.description}</p>
         <span className="app-card-cta">
           {app.ctaLabel}
-          <ArrowRight size={14} aria-hidden />
+          {external ? <ArrowUpRight size={14} aria-hidden /> : <ArrowRight size={14} aria-hidden />}
         </span>
       </div>
     </a>
@@ -331,9 +332,9 @@ function PrivacyPage() {
   return (
     <LegalPage title="Privacy Policy" updated="May 17, 2026">
       <p>
-        This policy covers every product PDX Software publishes — currently App Sweep, Fly Mail,
-        Fly, and the Harborline Labs experiments — and the marketing pages at pdx.software.
-        Harborline Holdings is the company behind PDX Software.
+        This policy covers every product PDX Software publishes — currently App Sweep, Prompt
+        Producer, Fly Mail, Fly, and the Harborline Labs experiments — and the marketing pages at
+        pdx.software. Harborline Holdings is the company behind PDX Software.
       </p>
       <h2>What each product collects</h2>
       <h3>App Sweep (macOS desktop)</h3>
@@ -341,6 +342,11 @@ function PrivacyPage() {
         Does not collect analytics, create accounts, transmit selected app paths, or send removal
         activity to a server. Theme, menu-bar visibility, confetti, and review-prompt state stay
         in local macOS preferences.
+      </p>
+      <h3>Prompt Producer (App Store)</h3>
+      <p>
+        The marketing site links to Prompt Producer's App Store listing. App-specific data handling
+        is disclosed through the App Store privacy details and any in-app notices for that app.
       </p>
       <h3>Fly Mail (mail.fly.pm)</h3>
       <p>
@@ -396,6 +402,11 @@ function TermsPage() {
         moves selected bundles to Trash and asks Finder to empty Trash only when you choose that
         action. macOS may require administrator authentication or Full Disk Access. App Sweep
         cannot grant itself those permissions or bypass system prompts.
+      </p>
+      <h2>Prompt Producer</h2>
+      <p>
+        Prompt Producer is distributed through the Apple App Store. Apple's App Store terms and
+        any in-app terms apply in addition to these site terms.
       </p>
       <h2>Fly Mail</h2>
       <p>
