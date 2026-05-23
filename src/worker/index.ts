@@ -39,7 +39,7 @@ app.get('/api/company', (c) => {
       },
       {
         name: 'Fly',
-        category: 'Link tracking and click analytics',
+        category: 'AI productivity workspace and knowledge base',
         url: 'https://fly.pm',
       },
     ],

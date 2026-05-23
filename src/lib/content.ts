@@ -2,10 +2,9 @@ import type { LucideIcon } from 'lucide-react'
 import {
   AppWindow,
   BookOpen,
-  ChartNoAxesCombined,
+  BrainCircuit,
   Compass,
   Hammer,
-  Mail,
   MessageCircle,
   ShieldCheck,
   Sparkles,
@@ -102,63 +101,36 @@ export const apps: AppRecord[] = [
   },
   {
     slug: 'fly-mail',
-    name: 'Fly Mail',
-    tagline: 'AI-first email at mail.fly.pm.',
-    description:
-      'A modern inbox built on Cloudflare. Auto-labelling, forwarding + labelling rules, fly.pm tracking with bot filtering, and a draggable activity inspector that shows opens, clicks, and where they came from.',
-    ctaLabel: 'Open Fly Mail',
-    ctaHref: 'https://mail.fly.pm',
-    status: 'Web mail client',
-    featured: true,
-    Icon: Mail,
-    accent: '#a3be8c',
-    features: [
-      {
-        title: 'AI labelling that actually fires',
-        body: 'A self-learning labeller tags inbound mail with newsletter / social / notification / receipt / school categories so the sidebar fills out on its own.',
-      },
-      {
-        title: 'Forwarding + labelling rules',
-        body: 'Match on sender, recipient, subject, or body. Optionally mark as read, archive, or apply a label automatically. Create rules in one click from any thread.',
-      },
-      {
-        title: 'Privacy-first tracking',
-        body: 'Outbound tracking is scanner-aware: machine pre-fetches are filtered out of opens. Inbound, third-party pixels are stripped and clicks route through a no-referrer proxy.',
-      },
-      {
-        title: 'Local-first sync',
-        body: 'IndexedDB caches the full thread history per device; the inbox virtualises with TanStack so a 10k-thread cache scrolls without lag.',
-      },
-    ],
-    carouselLines: [
-      "AI-first Email on Cloudflare's Edge",
-    ],
-  },
-  {
-    slug: 'fly',
     name: 'Fly',
-    tagline: 'Link tracking and click analytics at fly.pm.',
+    tagline: 'AI-first productivity manager and knowledge base.',
     description:
-      'Short links, redirects, and lightweight campaign measurement. Powered by Cloudflare Workers + Analytics Engine.',
-    ctaLabel: 'Visit fly.pm',
+      'Fly securely connects email, notes, files, storage, tasks, links, and calendar context into one fast Cloudflare-native workspace with AI-searchable knowledge.',
+    ctaLabel: 'Open Fly',
     ctaHref: 'https://fly.pm',
-    status: 'Link tracking',
-    featured: false,
-    Icon: ChartNoAxesCombined,
-    accent: '#5e81ac',
+    status: 'AI productivity workspace',
+    featured: true,
+    Icon: BrainCircuit,
+    accent: '#4f46e5',
     features: [
       {
-        title: 'Real-time clicks',
-        body: 'Every redirect lands in Cloudflare Analytics Engine within seconds, queryable by slug, geo, browser, and OS.',
+        title: 'Connected workspace',
+        body: 'Bring mail, calendar, tasks, links, notes, and files into one account instead of splitting work across disconnected tools.',
       },
       {
-        title: 'Per-recipient codes',
-        body: 'Each Fly Mail recipient gets its own short link so opens and clicks attribute back to the specific address.',
+        title: 'AI-searchable knowledge base',
+        body: 'Use natural-language discovery across mail, notes, links, tasks, files, and stored documents from a single knowledge layer.',
+      },
+      {
+        title: 'Secure Cloudflare-native storage',
+        body: 'Workspace data is built around Cloudflare D1, R2, Vectorize, AutoRAG, and AI Gateway so connected information stays in a controlled infrastructure layer.',
+      },
+      {
+        title: 'Actionable follow-ups',
+        body: 'Triage conversations into links, tasks, follow-ups, daily overviews, launch notes, and calendar context without leaving the workspace.',
       },
     ],
     carouselLines: [
-      'Short links with click analytics at fly.pm.',
-      'Backed by Cloudflare Workers + Analytics Engine.',
+      'Fly connects email, notes, storage, and tasks into an AI-first workspace.',
     ],
   },
   {
@@ -215,6 +187,7 @@ export const apps: AppRecord[] = [
 ]
 
 export function getAppBySlug(slug: string): AppRecord | undefined {
+  if (slug === 'fly') return apps.find(a => a.slug === 'fly-mail')
   return apps.find(a => a.slug === slug)
 }
 

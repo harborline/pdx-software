@@ -333,7 +333,7 @@ function PrivacyPage() {
     <LegalPage title="Privacy Policy" updated="May 17, 2026">
       <p>
         This policy covers every product PDX Software publishes — currently App Sweep, Prompt
-        Producer, Fly Mail, Fly, and the Harborline Labs experiments — and the marketing pages at
+        Producer, Fly, and the Harborline Labs experiments — and the marketing pages at
         pdx.software. Harborline Holdings is the company behind PDX Software.
       </p>
       <h2>What each product collects</h2>
@@ -348,20 +348,12 @@ function PrivacyPage() {
         The marketing site links to Prompt Producer's App Store listing. App-specific data handling
         is disclosed through the App Store privacy details and any in-app notices for that app.
       </p>
-      <h3>Fly Mail (mail.fly.pm)</h3>
-      <p>
-        Stores the contents of mailboxes a user explicitly hosts on Fly Mail or imports from a
-        Gmail account they've linked. Cloudflare D1 + R2 are the storage backends. Sent-message
-        tracking via fly.pm is opt-out per send; inbound third-party tracking pixels are stripped
-        and outbound link clicks route through a no-referrer proxy. AI labelling runs through
-        Cloudflare AI Gateway with the dynamic-route convention; the underlying provider sees
-        only the content needed to classify a single message at a time.
-      </p>
       <h3>Fly (fly.pm)</h3>
       <p>
-        Records short-link clicks in Cloudflare Analytics Engine: timestamp, slug, target URL,
-        approximate geo (city/region/country) from the request, and a User-Agent-derived
-        browser/OS string. Per-user link ownership is tied to a Fly account.
+        Stores workspace data a user creates or connects, including mail, calendar, tasks, links,
+        notes, files, and storage resources. Cloudflare D1, R2, Vectorize, AutoRAG, and AI Gateway
+        power the connected knowledge layer and AI search. Short-link analytics can include
+        timestamp, slug, target URL, approximate geo from the request, and a browser/OS string.
       </p>
       <h3>Marketing site (pdx.software)</h3>
       <p>
@@ -393,7 +385,7 @@ function TermsPage() {
       <h2>Acceptable use</h2>
       <p>
         Use the products lawfully and as documented. Don't try to circumvent platform security
-        (macOS prompts in App Sweep, Cloudflare auth in Fly Mail, rate limits in Fly), abuse
+        (macOS prompts in App Sweep, connected-account auth and resource limits in Fly), abuse
         third-party services through the products, or use them to send unsolicited bulk mail.
       </p>
       <h2>App Sweep</h2>
@@ -408,17 +400,12 @@ function TermsPage() {
         Prompt Producer is distributed through the Apple App Store. Apple's App Store terms and
         any in-app terms apply in addition to these site terms.
       </p>
-      <h2>Fly Mail</h2>
-      <p>
-        Fly Mail accounts are personal to the signed-in user. Outbound mail uses Cloudflare Email
-        Service and is subject to its sending limits. Tracked sends include a transparent pixel
-        and rewritten links unless the user disables tracking on a per-send basis.
-      </p>
       <h2>Fly</h2>
       <p>
-        Short links must not redirect to malware, phishing, or content that violates the host's
-        terms. We reserve the right to disable any link that does. Per-account link quotas are
-        documented in the Fly dashboard.
+        Fly accounts are personal to the signed-in user. Connected email, notes, files, storage,
+        tasks, calendars, links, and AI search features must be used lawfully and within the limits
+        shown in the product. Short links must not redirect to malware, phishing, or content that
+        violates the host's terms.
       </p>
       <h2>Support</h2>
       <p>
@@ -436,8 +423,7 @@ function SupportPage() {
         <h1>Help across every PDX Software product.</h1>
         <p>
           Include the product name, the macOS or browser version, and any error message you saw.
-          For Fly Mail and Fly we'll also need the signed-in email address so we can look the
-          account up.
+          For Fly we'll also need the signed-in email address so we can look the account up.
         </p>
         <a className="button button-primary" href={`mailto:${legalEmail}`}>
           Email support
