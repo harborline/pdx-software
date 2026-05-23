@@ -40,6 +40,10 @@ function resolvePath(pathname: string, mode: SiteMode) {
   return pathname
 }
 
+function appDestination(app: AppRecord) {
+  return app.cardHref ?? app.ctaHref
+}
+
 function Shell({
   children,
   mode,
@@ -65,7 +69,7 @@ function Shell({
   const featured = apps.filter(a => a.featured)
   const nav = [
     { href: '/', label: 'Apps' },
-    ...featured.map(a => ({ href: `/${a.slug}`, label: a.name })),
+    ...featured.map(a => ({ href: appDestination(a), label: a.name })),
     { href: '/support', label: 'Support' },
     { href: '/privacy', label: 'Privacy' },
     { href: '/terms', label: 'Terms' },
@@ -162,6 +166,7 @@ function HeroCarousel({ navigate }: { navigate: (path: string) => void }) {
 
   const current = lines[index]
   if (!current) return null
+  const currentDestination = appDestination(current.app)
 
   return (
     <section className="hero-carousel">
@@ -183,10 +188,10 @@ function HeroCarousel({ navigate }: { navigate: (path: string) => void }) {
       <p className="hero-byline">
         Currently:{' '}
         <a
-          href={`/${current.app.slug}`}
+          href={currentDestination}
           onClick={(e) => {
             e.preventDefault()
-            navigate(`/${current.app.slug}`)
+            navigate(currentDestination)
           }}
         >
           {current.app.name}
@@ -210,7 +215,7 @@ function HeroCarousel({ navigate }: { navigate: (path: string) => void }) {
 
 function AppCard({ app, navigate }: { app: AppRecord, navigate: (path: string) => void }) {
   const Icon = app.Icon
-  const target = app.cardHref ?? (app.ctaHref.startsWith('/') ? app.ctaHref : `/${app.slug}`)
+  const target = appDestination(app)
   const external = target.startsWith('http') || target.startsWith('mailto:')
   return (
     <a
@@ -332,9 +337,10 @@ function PrivacyPage() {
   return (
     <LegalPage title="Privacy Policy" updated="May 23, 2026">
       <p>
-        This policy covers every product PDX Software publishes — currently App Sweep, Prompt
-        Producer, Fly, and the Harborline Labs experiments — and the marketing pages at
-        pdx.software. Harborline Holdings is the company behind PDX Software.
+        This policy covers every product PDX Software publishes or supports, including App Sweep,
+        Prompt Producer, Fly, Book Cook, Brave Dev Extension, Spooool, Make The App, alex, and the
+        Harborline Labs experiments. It also covers the marketing pages at pdx.software.
+        Harborline Holdings is the company behind PDX Software.
       </p>
       <h2>What each product collects</h2>
       <h3>App Sweep (macOS desktop)</h3>
@@ -354,6 +360,32 @@ function PrivacyPage() {
         notes, files, and storage resources. Cloudflare D1, R2, Vectorize, AutoRAG, and AI Gateway
         power the connected knowledge layer and AI search. Short-link analytics can include
         timestamp, slug, target URL, approximate geo from the request, and a browser/OS string.
+      </p>
+      <h3>Book Cook (book-cook.com)</h3>
+      <p>
+        Stores account identity, author workspace settings, book projects, outlines, manuscript
+        drafts, chapter notes, voice profiles, research briefs, generated text, export jobs, and
+        support messages the user creates or imports. Book Cook uses Cloudflare-backed storage,
+        Workers, Durable Objects, Workflows, R2, D1, and AI services to draft, organize, render,
+        export, and support long-form publishing work.
+      </p>
+      <h3>Brave Dev Extension</h3>
+      <p>
+        Processes browser and developer context only when the user installs the extension, grants
+        browser permissions, or invokes a feature. Depending on the permissions and actions chosen,
+        this can include active-tab metadata, page content selected for inspection, recordings,
+        bookmarks, history, cookies, extension settings, local AI CLI responses, and synced resource
+        references. The extension uses that data to provide developer-console, page-inspection,
+        recording, search, automation, and local AI workflow features.
+      </p>
+      <h3>Spooool (spooool.com)</h3>
+      <p>
+        Stores account identity, channel/profile data, uploaded videos, titles, descriptions,
+        thumbnails, captions or transcripts when provided, comments, moderation actions, watch
+        history, playback position, subscription or payment metadata, and operational security
+        logs needed to run a video platform. Spooool uses Cloudflare Workers, R2, Stream, D1,
+        Durable Objects, Analytics Engine, and related service providers for upload, playback,
+        search, moderation, abuse prevention, analytics, and account support.
       </p>
       <h2>Google user data used by Fly</h2>
       <p>
@@ -468,17 +500,53 @@ function PrivacyPage() {
 
 function TermsPage() {
   return (
-    <LegalPage title="Terms of Service" updated="May 17, 2026">
+    <LegalPage title="Terms of Service" updated="May 23, 2026">
       <p>
-        These terms cover every product PDX Software publishes and the marketing pages at
-        pdx.software. Each product may extend these with product-specific terms surfaced inside
-        the product itself.
+        These terms govern access to PDX Software products, product websites, browser extensions,
+        desktop apps, hosted services, APIs, and support channels. By using a product, creating an
+        account, installing an extension, or visiting a hosted app, you agree to these terms and to
+        any product-specific notices shown inside that product.
+      </p>
+      <h2>Accounts and responsibility</h2>
+      <p>
+        You are responsible for the accounts, devices, browser profiles, API keys, files, prompts,
+        links, videos, mailboxes, calendars, manuscripts, and other content you connect to a PDX
+        Software product. Keep credentials secure and use each product only for accounts and data
+        you are allowed to access.
       </p>
       <h2>Acceptable use</h2>
       <p>
-        Use the products lawfully and as documented. Don't try to circumvent platform security
-        (macOS prompts in App Sweep, connected-account auth and resource limits in Fly), abuse
-        third-party services through the products, or use them to send unsolicited bulk mail.
+        Use the products lawfully and as documented. Do not bypass platform security, attack or
+        overload the service, scrape or exfiltrate data you do not control, upload malware, evade
+        moderation, infringe intellectual-property rights, send unsolicited bulk mail, create
+        phishing or deceptive flows, or use the products to violate a third-party service's terms.
+        We may throttle, suspend, remove content, or terminate access when needed to protect users,
+        infrastructure, legal obligations, or third-party services.
+      </p>
+      <h2>User content</h2>
+      <p>
+        You keep ownership of content you create, upload, connect, or import. You grant PDX
+        Software the limited permission needed to host, store, process, transform, display, search,
+        transmit, back up, and support that content so the selected product can operate. You are
+        responsible for having the rights and consents needed for anything you submit, including
+        emails, files, contacts, videos, manuscripts, prompts, browser data, and links.
+      </p>
+      <h2>AI features and outputs</h2>
+      <p>
+        AI-assisted features can summarize, classify, draft, search, recommend, or transform user
+        content. Review important outputs before relying on them, publishing them, deleting data,
+        sending messages, changing calendar events, or making business, legal, medical, financial,
+        or safety decisions. AI output may be incomplete, inaccurate, similar to output generated
+        for others, or affected by the quality of the inputs and connected data.
+      </p>
+      <h2>Third-party services</h2>
+      <p>
+        Some products connect to platforms such as Apple, Google, Cloudflare, Brave or Chromium
+        browsers, payment processors, email providers, storage providers, AI model providers, and
+        local developer tools. Your use of those integrations remains subject to the third party's
+        own terms, limits, account permissions, and availability. PDX Software is not responsible
+        for third-party service outages, policy changes, data returned by those services, or actions
+        you take in those connected accounts.
       </p>
       <h2>App Sweep</h2>
       <p>
@@ -499,9 +567,85 @@ function TermsPage() {
         shown in the product. Short links must not redirect to malware, phishing, or content that
         violates the host's terms.
       </p>
+      <h2>Book Cook</h2>
+      <p>
+        Book Cook helps authors organize and generate publishing materials, but you remain
+        responsible for reviewing manuscripts, research, claims, citations, exports, covers, audio,
+        marketing copy, rights clearance, and marketplace submissions before publishing or selling
+        them.
+      </p>
+      <h2>Spooool</h2>
+      <p>
+        Spooool users are responsible for uploaded videos, captions, thumbnails, comments, and
+        channel activity. Do not upload content you do not have rights to distribute, unlawful
+        content, exploitative content, malware, or content intended to harass, deceive, or evade
+        moderation. We may remove or restrict content and accounts to comply with law, platform
+        obligations, rights-holder requests, abuse reports, or infrastructure limits.
+      </p>
+      <h2>Brave Dev Extension</h2>
+      <p>
+        Brave Dev Extension is a developer tool for browser profiles and local workflows you
+        control. You are responsible for any page data, cookies, browsing history, recordings,
+        local CLI output, automation commands, or synced resources you choose to expose to the
+        extension or connected tools.
+      </p>
+      <h2>Payments and subscriptions</h2>
+      <p>
+        Paid features, usage limits, trials, and renewals may vary by product and billing provider.
+        Fees are charged through the storefront or payment provider shown at purchase time. Unless
+        a product-specific policy or applicable law says otherwise, fees are non-refundable after
+        access, usage, export, or subscription benefits have been delivered.
+      </p>
+      <h2>Availability and changes</h2>
+      <p>
+        Products may be experimental, changed, interrupted, rate-limited, or discontinued. We may
+        update features, models, infrastructure, integrations, limits, prices, and legal terms as
+        the products evolve. We try to preserve user data where practical, but you should keep your
+        own backups of important files, manuscripts, videos, exports, prompts, links, and records.
+      </p>
+      <h2>Intellectual property</h2>
+      <p>
+        PDX Software products, code, branding, interfaces, documentation, and service design are
+        owned by Harborline Holdings or its licensors. These terms do not grant permission to copy,
+        resell, reverse engineer, or create a competing hosted service from non-public product
+        components except where an open-source license expressly allows it.
+      </p>
+      <h2>Privacy</h2>
+      <p>
+        Product data handling is described in the <a href="/privacy">Privacy Policy</a>. If these
+        terms and the Privacy Policy describe the same data practice differently, the Privacy Policy
+        controls for that privacy issue.
+      </p>
+      <h2>Disclaimers and liability</h2>
+      <p>
+        Products are provided as-is and as-available to the fullest extent permitted by law. We do
+        not promise uninterrupted service, error-free output, preservation of every item of data, or
+        fitness for a particular use. To the fullest extent permitted by law, PDX Software and
+        Harborline Holdings are not liable for indirect, incidental, consequential, special,
+        exemplary, or punitive damages, lost profits, lost revenue, lost data, or loss of goodwill.
+        Our total liability for a product is limited to the amount you paid for that product in the
+        12 months before the claim, or 100 USD if you paid nothing.
+      </p>
+      <h2>Indemnity</h2>
+      <p>
+        You agree to defend and indemnify PDX Software and Harborline Holdings from claims, losses,
+        liabilities, damages, costs, and expenses arising from your content, your misuse of a
+        product, your violation of these terms, or your violation of law or third-party rights.
+      </p>
+      <h2>Termination</h2>
+      <p>
+        You may stop using the products at any time. We may suspend or terminate access if needed
+        for security, abuse prevention, nonpayment, legal compliance, product discontinuation, or
+        violation of these terms. Termination does not remove obligations that by their nature
+        should survive, including payment obligations, content responsibility, disclaimers,
+        liability limits, and indemnity.
+      </p>
       <h2>Support</h2>
       <p>
-        Questions can be sent to <a href={`mailto:${legalEmail}`}>{legalEmail}</a>.
+        Questions, deletion requests, legal notices, and support requests can be sent to{' '}
+        <a href={`mailto:${legalEmail}`}>{legalEmail}</a>. These terms are governed by the laws of
+        Oregon, United States, without regard to conflict-of-law rules, unless applicable law
+        requires a different venue or governing law.
       </p>
     </LegalPage>
   )

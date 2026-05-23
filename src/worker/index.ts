@@ -15,7 +15,16 @@ app.get('/api/status', (c) => {
     service: 'harborline.cloud',
     company: 'Harborline Holdings',
     productDomain: 'pdx.software',
-    products: ['App Sweep', 'Prompt Producer', 'Fly'],
+    products: [
+      'App Sweep',
+      'Prompt Producer',
+      'Fly',
+      'Book Cook',
+      'Spooool',
+      'Brave Dev Extension',
+      'Make The App',
+      'alex',
+    ],
     purpose: 'Holding company website and product support surface',
   })
 })
@@ -41,6 +50,31 @@ app.get('/api/company', (c) => {
         name: 'Fly',
         category: 'AI productivity workspace and knowledge base',
         url: 'https://fly.pm',
+      },
+      {
+        name: 'Book Cook',
+        category: 'AI authoring studio',
+        url: 'https://book-cook.com',
+      },
+      {
+        name: 'Spooool',
+        category: 'Video platform',
+        url: 'https://spooool.com',
+      },
+      {
+        name: 'Brave Dev Extension',
+        category: 'Browser developer extension',
+        url: 'https://github.com/harborline/brave-dev-ext',
+      },
+      {
+        name: 'Make The App',
+        category: 'Prompt-to-app builder',
+        url: 'https://makethe.app',
+      },
+      {
+        name: 'alex',
+        category: 'Apple-platform conversational companion',
+        url: 'https://alex.chat',
       },
     ],
   })

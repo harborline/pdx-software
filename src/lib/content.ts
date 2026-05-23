@@ -3,6 +3,8 @@ import {
   AppWindow,
   BookOpen,
   BrainCircuit,
+  Clapperboard,
+  Code2,
   Compass,
   Hammer,
   MessageCircle,
@@ -148,6 +150,40 @@ export const apps: AppRecord[] = [
     features: [],
     carouselLines: [
       'Outline first, draft scene-by-scene, iterate on tone last.',
+    ],
+  },
+  {
+    slug: 'spooool',
+    name: 'Spooool',
+    tagline: 'Cloudflare-native video publishing.',
+    description:
+      'A video platform for uploading, watching, embedding, and managing channels on Cloudflare infrastructure.',
+    ctaLabel: 'Open Spooool',
+    ctaHref: 'https://spooool.com',
+    status: 'Video platform',
+    featured: false,
+    Icon: Clapperboard,
+    accent: '#2f855a',
+    features: [],
+    carouselLines: [
+      'Upload, watch, and share video on a Cloudflare-native platform.',
+    ],
+  },
+  {
+    slug: 'brave-dev-extension',
+    name: 'Brave Dev Extension',
+    tagline: 'A browser side panel for developer context and local AI tools.',
+    description:
+      'A Brave and Chromium extension that connects page inspection, recordings, bookmarks, history, cookies, synced resources, and local AI CLI workflows from the browser.',
+    ctaLabel: 'View on GitHub',
+    ctaHref: 'https://github.com/harborline/brave-dev-ext',
+    status: 'Browser extension',
+    featured: false,
+    Icon: Code2,
+    accent: '#c05621',
+    features: [],
+    carouselLines: [
+      'Browser context and local AI developer tools in one extension.',
     ],
   },
   {
