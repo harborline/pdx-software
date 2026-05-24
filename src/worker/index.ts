@@ -21,7 +21,7 @@ app.get('/api/status', (c) => {
       'Fly',
       'Book Cook',
       'Spooool',
-      'Brave Dev Extension',
+      'AI Dev Sidebar',
       'Make The App',
       'alex',
     ],
@@ -62,9 +62,9 @@ app.get('/api/company', (c) => {
         url: 'https://spooool.com',
       },
       {
-        name: 'Brave Dev Extension',
+        name: 'AI Dev Sidebar',
         category: 'Browser developer extension',
-        url: 'https://github.com/harborline/brave-dev-ext',
+        url: 'https://github.com/harborline/ai-dev-sidebar',
       },
       {
         name: 'Make The App',

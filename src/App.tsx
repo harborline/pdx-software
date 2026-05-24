@@ -335,10 +335,10 @@ function AppMarketingPage({ app, navigate }: { app: AppRecord, navigate: (path: 
 
 function PrivacyPage() {
   return (
-    <LegalPage title="Privacy Policy" updated="May 23, 2026">
+    <LegalPage title="Privacy Policy" updated="May 24, 2026">
       <p>
         This policy covers every product PDX Software publishes or supports, including App Sweep,
-        Prompt Producer, Fly, Book Cook, Brave Dev Extension, Spooool, Make The App, alex, and the
+        Prompt Producer, Fly, Book Cook, AI Dev Sidebar, Spooool, Make The App, alex, and the
         Harborline Labs experiments. It also covers the marketing pages at pdx.software.
         Harborline Holdings is the company behind PDX Software.
       </p>
@@ -369,14 +369,67 @@ function PrivacyPage() {
         Workers, Durable Objects, Workflows, R2, D1, and AI services to draft, organize, render,
         export, and support long-form publishing work.
       </p>
-      <h3>Brave Dev Extension</h3>
+      <h3>AI Dev Sidebar (Chrome extension)</h3>
       <p>
-        Processes browser and developer context only when the user installs the extension, grants
-        browser permissions, or invokes a feature. Depending on the permissions and actions chosen,
-        this can include active-tab metadata, page content selected for inspection, recordings,
-        bookmarks, history, cookies, extension settings, local AI CLI responses, and synced resource
-        references. The extension uses that data to provide developer-console, page-inspection,
-        recording, search, automation, and local AI workflow features.
+        AI Dev Sidebar processes browser and developer context only when the user installs the
+        extension, grants Chrome permissions, or invokes a visible side-panel, context-menu,
+        capture, automation, or local-tool feature. Its single purpose is to provide a Chrome side
+        panel for local AI terminals, page inspection, captures, bookmarks, cookies, and browser
+        workflow tools.
+      </p>
+      <p>
+        The extension can process the following Chrome extension data categories when needed for
+        user-facing features: website content and page resources, active-tab URL/title/fav icon,
+        web browsing activity, bookmarks, history, downloads, cookies and other authentication
+        information, extension settings, browser settings, screen/tab/audio captures, user-entered
+        search queries, local terminal output, local AI CLI responses, and synced resource
+        references. Page content may include personal information or personal communications if the
+        user chooses to inspect, capture, summarize, automate, or send that page to a configured
+        local or remote tool.
+      </p>
+      <p>
+        The requested Chrome permissions are used as follows: <code>storage</code> and
+        <code>unlimitedStorage</code> store extension settings, onboarding state, captures, and
+        workflow state in the browser profile; <code>sidePanel</code> displays the primary
+        interface; <code>tabs</code>, <code>activeTab</code>, <code>webNavigation</code>,
+        <code>scripting</code>, and host access to <code>&lt;all_urls&gt;</code> support page
+        inspection, selected-page automation, visible-tab capture, and user-directed tools across
+        sites the user chooses to work with; <code>contextMenus</code> adds explicit browser menu
+        actions; <code>tabCapture</code>, <code>desktopCapture</code>, and
+        <code>offscreen</code> support screen, tab, audio, and recording workflows;
+        <code>bookmarks</code>, <code>history</code>, <code>cookies</code>,
+        <code>downloads</code>, <code>browsingData</code>, <code>privacy</code>, and
+        <code>contentSettings</code> support browser-data management surfaces shown in the
+        extension; <code>declarativeNetRequest</code> supports user-visible request rules and
+        inspection workflows; <code>management</code> supports extension/profile diagnostics;
+        <code>search</code> sends user-entered searches through Chrome's default search provider;
+        <code>alarms</code> runs scheduled local extension work; and
+        <code>nativeMessaging</code> connects to an optional local native host selected by the
+        user for terminals, local files, local AI tools, and developer automation.
+      </p>
+      <p>
+        By default, AI Dev Sidebar stores extension data locally in the user's browser profile and,
+        where configured, in the user's local native host. PDX Software does not receive browsing
+        history, page content, cookies, captures, terminal output, or prompts by default. If the
+        user configures a hosted sidebar API, AI service, automation endpoint, or other third-party
+        integration, the extension sends only the data needed for that requested feature to the
+        configured service over HTTPS or the platform transport provided by Chrome/native
+        messaging.
+      </p>
+      <p>
+        PDX Software does not sell extension data, share it with advertising platforms, use it for
+        retargeting or interest-based advertising, transfer it to data brokers, or use it to
+        determine creditworthiness. Humans do not read extension user data unless the user asks for
+        support involving specific data, access is necessary to investigate abuse or security
+        issues, or access is required by law. The use of information received from Chrome APIs and
+        Google APIs adheres to the Chrome Web Store User Data Policy, including the Limited Use
+        requirements.
+      </p>
+      <p>
+        Users can delete extension data by clearing the extension's browser storage, removing the
+        extension, clearing relevant Chrome browsing data, deleting local native-host files, or
+        requesting deletion of any PDX-hosted account data by emailing{' '}
+        <a href={`mailto:${legalEmail}`}>{legalEmail}</a>.
       </p>
       <h3>Spooool (spooool.com)</h3>
       <p>
@@ -582,9 +635,9 @@ function TermsPage() {
         moderation. We may remove or restrict content and accounts to comply with law, platform
         obligations, rights-holder requests, abuse reports, or infrastructure limits.
       </p>
-      <h2>Brave Dev Extension</h2>
+      <h2>AI Dev Sidebar</h2>
       <p>
-        Brave Dev Extension is a developer tool for browser profiles and local workflows you
+        AI Dev Sidebar is a developer tool for browser profiles and local workflows you
         control. You are responsible for any page data, cookies, browsing history, recordings,
         local CLI output, automation commands, or synced resources you choose to expose to the
         extension or connected tools.

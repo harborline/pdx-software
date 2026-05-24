@@ -170,13 +170,13 @@ export const apps: AppRecord[] = [
     ],
   },
   {
-    slug: 'brave-dev-extension',
-    name: 'Brave Dev Extension',
+    slug: 'ai-dev-sidebar',
+    name: 'AI Dev Sidebar',
     tagline: 'A browser side panel for developer context and local AI tools.',
     description:
-      'A Brave and Chromium extension that connects page inspection, recordings, bookmarks, history, cookies, synced resources, and local AI CLI workflows from the browser.',
+      'A Chrome and Chromium extension that connects page inspection, recordings, bookmarks, history, cookies, synced resources, and local AI CLI workflows from the browser.',
     ctaLabel: 'View on GitHub',
-    ctaHref: 'https://github.com/harborline/brave-dev-ext',
+    ctaHref: 'https://github.com/harborline/ai-dev-sidebar',
     status: 'Browser extension',
     featured: false,
     Icon: Code2,
