@@ -335,11 +335,11 @@ function AppMarketingPage({ app, navigate }: { app: AppRecord, navigate: (path: 
 
 function PrivacyPage() {
   return (
-    <LegalPage title="Privacy Policy" updated="May 24, 2026">
+    <LegalPage title="Privacy Policy" updated="May 26, 2026">
       <p>
         This policy covers every product PDX Software publishes or supports, including App Sweep,
-        Prompt Producer, Fly, Book Cook, AI Dev Sidebar, Spooool, Make The App, alex, and the
-        Harborline Labs experiments. It also covers the marketing pages at pdx.software.
+        Renamer, Prompt Producer, Fly, Book Cook, AI Dev Sidebar, Spooool, Make The App, alex, and
+        the Harborline Labs experiments. It also covers the marketing pages at pdx.software.
         Harborline Holdings is the company behind PDX Software.
       </p>
       <h2>What each product collects</h2>
@@ -348,6 +348,13 @@ function PrivacyPage() {
         Does not collect analytics, create accounts, transmit selected app paths, or send removal
         activity to a server. Theme, menu-bar visibility, confetti, and review-prompt state stay
         in local macOS preferences.
+      </p>
+      <h3>Renamer</h3>
+      <p>
+        Does not collect data from users. Renamer does not create accounts, collect analytics,
+        transmit filenames, store user documents on PDX Software servers, or send rename activity
+        to a remote service. Files, folders, filenames, previews, preferences, and rename actions
+        stay on the user's device.
       </p>
       <h3>Prompt Producer (App Store)</h3>
       <p>
@@ -553,7 +560,7 @@ function PrivacyPage() {
 
 function TermsPage() {
   return (
-    <LegalPage title="Terms of Service" updated="May 23, 2026">
+    <LegalPage title="Terms of Service" updated="May 26, 2026">
       <p>
         These terms govern access to PDX Software products, product websites, browser extensions,
         desktop apps, hosted services, APIs, and support channels. By using a product, creating an
@@ -607,6 +614,12 @@ function TermsPage() {
         moves selected bundles to Trash and asks Finder to empty Trash only when you choose that
         action. macOS may require administrator authentication or Full Disk Access. App Sweep
         cannot grant itself those permissions or bypass system prompts.
+      </p>
+      <h2>Renamer</h2>
+      <p>
+        Renamer does not collect data from users. You are responsible for reviewing rename previews,
+        selected files and folders, naming patterns, and resulting filenames before applying a
+        rename operation. Keep your own backups of important files before running bulk changes.
       </p>
       <h2>Prompt Producer</h2>
       <p>
