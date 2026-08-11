@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "pdx-software",
+  "name": "harborline",
   "main": "src/worker/index.ts",
   "compatibility_date": "2026-05-16",
   "assets": {
@@ -10,20 +10,12 @@
   },
   "routes": [
     {
-      "pattern": "harborline.cloud/*",
-      "zone_name": "harborline.cloud"
+      "pattern": "theharborline.co/*",
+      "zone_name": "theharborline.co"
     },
     {
-      "pattern": "www.harborline.cloud/*",
-      "zone_name": "harborline.cloud"
-    },
-    {
-      "pattern": "pdx.software/*",
-      "zone_name": "pdx.software"
-    },
-    {
-      "pattern": "www.pdx.software/*",
-      "zone_name": "pdx.software"
+      "pattern": "www.theharborline.co",
+      "custom_domain": true
     }
   ],
   "observability": {

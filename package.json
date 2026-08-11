@@ -1,5 +1,5 @@
 {
-  "name": "pdx-software",
+  "name": "harborline",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -9,7 +9,10 @@
     "dev": "vite --host 127.0.0.1",
     "preview": "pnpm build && wrangler dev --local --port 8787",
     "deploy": "pnpm build && wrangler deploy",
-    "typecheck": "tsc --noEmit"
+    "deploy:redirect": "wrangler deploy -c wrangler.redirect.jsonc",
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types scripts/check-routes.mjs",
+    "favicon": "node scripts/make-favicon.mjs"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^5.1.2",

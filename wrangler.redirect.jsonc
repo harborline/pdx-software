@@ -1,0 +1,18 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Legacy domains. Keeps the existing `pdx-software` script name so the
+  // routes already attached to pdx.software and harborline.cloud carry over
+  // without touching zone configuration.
+  "name": "pdx-software",
+  "main": "src/worker/redirect.ts",
+  "compatibility_date": "2026-05-16",
+  "routes": [
+    { "pattern": "pdx.software/*", "zone_name": "pdx.software" },
+    { "pattern": "www.pdx.software/*", "zone_name": "pdx.software" },
+    { "pattern": "harborline.cloud/*", "zone_name": "harborline.cloud" },
+    { "pattern": "www.harborline.cloud/*", "zone_name": "harborline.cloud" }
+  ],
+  "observability": {
+    "enabled": true
+  }
+}

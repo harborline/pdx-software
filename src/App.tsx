@@ -1,9 +1,8 @@
 import { ArrowRight, ArrowUpRight, Mail } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
-import { InteractiveShader } from './components/InteractiveShader'
+import { FluidMark } from './components/FluidMark'
 import { type AppRecord, apps, getAppBySlug, homeCarouselLines, legalEmail, principles } from './lib/content'
-
-type SiteMode = 'holding' | 'product'
+import { resolvePath } from './lib/routes'
 
 function usePathname() {
   const [pathname, setPathname] = useState(() => window.location.pathname)
@@ -28,48 +27,54 @@ function usePathname() {
   }
 }
 
-function getSiteMode(): SiteMode {
-  if (window.location.hostname === 'pdx.software' || window.location.hostname === 'www.pdx.software')
-    return 'product'
-  return 'holding'
-}
-
-function resolvePath(pathname: string, mode: SiteMode) {
-  if (mode === 'product' && pathname === '/about') return '/'
-  if (pathname === '/marketing') return '/'
-  return pathname
-}
-
 function appDestination(app: AppRecord) {
   return app.cardHref ?? app.ctaHref
 }
 
+function isExternal(href: string) {
+  return href.startsWith('http') || href.startsWith('mailto:')
+}
+
+/** Anchor that routes internally and leaves external links to the browser. */
+function Link({
+  href,
+  navigate,
+  className,
+  children,
+}: {
+  href: string
+  navigate: (path: string) => void
+  className?: string
+  children: React.ReactNode
+}) {
+  const external = isExternal(href)
+  return (
+    <a
+      className={className}
+      href={href}
+      {...(external ? { target: '_blank', rel: 'noreferrer noopener' } : {})}
+      onClick={(event) => {
+        if (external) return
+        event.preventDefault()
+        navigate(href)
+      }}
+    >
+      {children}
+    </a>
+  )
+}
+
 function Shell({
   children,
-  mode,
   pathname,
   navigate,
 }: {
   children: React.ReactNode
-  mode: SiteMode
   pathname: string
   navigate: (path: string) => void
 }) {
-  if (mode === 'holding') {
-    return (
-      <div className="site-shell holding-shell">
-        <main>{children}</main>
-        <footer className="holding-footer">
-          <p>© 2026 Harborline Holdings</p>
-        </footer>
-      </div>
-    )
-  }
-
-  const featured = apps.filter(a => a.featured)
   const nav = [
-    { href: '/', label: 'Apps' },
-    ...featured.map(a => ({ href: appDestination(a), label: a.name })),
+    { href: '/', label: 'Products' },
     { href: '/support', label: 'Support' },
     { href: '/privacy', label: 'Privacy' },
     { href: '/terms', label: 'Terms' },
@@ -78,54 +83,37 @@ function Shell({
   return (
     <div className="site-shell">
       <header className="site-header">
-        <a
-          className="brand"
-          href="/"
-          onClick={(event) => {
-            event.preventDefault()
-            navigate('/')
-          }}
-        >
-          <span className="brand-mark" aria-hidden="true" />
-          <span>PDX Software</span>
-        </a>
+        <Link className="brand" href="/" navigate={navigate}>
+          {/* Lockup: mark left of the wordmark, vertically centred. */}
+          <FluidMark className="brand-mark" count={160} label="Harborline" />
+          <span className="brand-word">Harborline</span>
+        </Link>
         <nav className="nav-links" aria-label="Primary navigation">
           {nav.map(item => (
-            <a
+            <Link
               key={item.href}
               className={pathname === item.href ? 'is-active' : undefined}
               href={item.href}
-              onClick={(event) => {
-                event.preventDefault()
-                navigate(item.href)
-              }}
+              navigate={navigate}
             >
               {item.label}
-            </a>
+            </Link>
           ))}
         </nav>
       </header>
       <main>{children}</main>
       <footer className="site-footer">
-        <div>
-          <p>© 2026 Harborline Holdings · PDX Software</p>
-        </div>
+        <p>© 2026 The Harborline Company · Portland, Oregon</p>
         <div className="footer-links">
           {[
             { href: '/privacy', label: 'Privacy' },
             { href: '/terms', label: 'Terms' },
             { href: '/support', label: 'Support' },
+            { href: `mailto:${legalEmail}`, label: legalEmail },
           ].map(link => (
-            <a
-              key={link.href}
-              href={link.href}
-              onClick={(event) => {
-                event.preventDefault()
-                navigate(link.href)
-              }}
-            >
+            <Link key={link.href} href={link.href} navigate={navigate}>
               {link.label}
-            </a>
+            </Link>
           ))}
         </div>
       </footer>
@@ -133,26 +121,7 @@ function Shell({
   )
 }
 
-function HoldingHome() {
-  return (
-    <section className="holding-home" aria-labelledby="holding-title">
-      <div className="holding-heading">
-        <h1 id="holding-title">Harborline Holdings</h1>
-        <p>Portland, Oregon • United States</p>
-      </div>
-      <div className="holding-card-grid" aria-label="Harborline links">
-        <a className="holding-card" href="https://pdx.software">
-          <span>PDX Software</span>
-        </a>
-        <article className="holding-card is-disabled" aria-label="Coming soon">
-          <span>Coming soon</span>
-        </article>
-      </div>
-    </section>
-  )
-}
-
-function HeroCarousel({ navigate }: { navigate: (path: string) => void }) {
+function Hero({ navigate }: { navigate: (path: string) => void }) {
   const lines = useMemo(homeCarouselLines, [])
   const [index, setIndex] = useState(0)
 
@@ -170,41 +139,26 @@ function HeroCarousel({ navigate }: { navigate: (path: string) => void }) {
 
   return (
     <section className="hero-carousel">
-      {/* Soft pastel-drift shader. Pointer-events:none in CSS so the
-          hero text + dots above it stay clickable. Slow timeStep
-          keeps the animation calm — barely-noticeable motion. */}
-      <div className="hero-shader" aria-hidden>
-        <InteractiveShader timeStep={0.02} />
-      </div>
-      <p className="domain">PDX Software</p>
+      <FluidMark className="hero-mark" label="The Harborline Company" />
+      <p className="eyebrow">The Harborline Company · Research &amp; Development</p>
       <div className="hero-line-wrap" aria-live="polite">
-        {/* Render only the active line. The `key` change forces React
-            to remount the h1 on every index advance which restarts the
-            fade-in keyframe; no absolute-position layering required, so
-            the headline stays naturally centred under the parent's
-            text-align rather than collapsing into a zero-width inset. */}
+        {/* Only the active line renders; the changing `key` remounts the h1 so
+            the entry keyframe restarts without absolute-position layering. */}
         <h1 key={index} className="hero-line">{current.line}</h1>
       </div>
       <p className="hero-byline">
         Currently:{' '}
-        <a
-          href={currentDestination}
-          onClick={(e) => {
-            e.preventDefault()
-            navigate(currentDestination)
-          }}
-        >
-          {current.app.name}
-        </a>
+        <Link href={currentDestination} navigate={navigate}>{current.app.name}</Link>
       </p>
-      <div className="hero-dots" role="tablist" aria-label="Hero slides">
-        {lines.map((_, i) => (
+      <div className="hero-dots" role="tablist" aria-label="Product highlights">
+        {lines.map((line, i) => (
           <button
-            key={i}
+            key={line.app.slug}
             type="button"
             className={`hero-dot ${i === index ? 'is-active' : ''}`}
-            aria-label={`Slide ${i + 1}`}
+            aria-label={line.app.name}
             aria-selected={i === index}
+            role="tab"
             onClick={() => setIndex(i)}
           />
         ))}
@@ -216,32 +170,22 @@ function HeroCarousel({ navigate }: { navigate: (path: string) => void }) {
 function AppCard({ app, navigate }: { app: AppRecord, navigate: (path: string) => void }) {
   const Icon = app.Icon
   const target = appDestination(app)
-  const external = target.startsWith('http') || target.startsWith('mailto:')
   return (
-    <a
-      className={`app-card ${app.featured ? 'is-featured' : ''}`}
-      href={target}
-      onClick={(event) => {
-        event.preventDefault()
-        navigate(target)
-      }}
-    >
-      <div className="app-card-logo" style={{ background: `${app.accent}1a`, color: app.accent }}>
+    <Link className={`app-card ${app.featured ? 'is-featured' : ''}`} href={target} navigate={navigate}>
+      <span className="app-card-logo">
         <Icon size={app.featured ? 28 : 22} aria-hidden="true" />
-      </div>
-      <div className="app-card-body">
-        {/* Title on its own row so a long name doesn't have to fight
-            the status chip for horizontal space. The status moves to
-            its own line below, rendered as a pill chip. */}
+      </span>
+      <span className="app-card-body">
+        {/* Title on its own row so a long name never fights the status chip. */}
         <h3 className="app-card-title">{app.name}</h3>
         <span className="app-card-status">{app.status}</span>
         <p>{app.description}</p>
         <span className="app-card-cta">
           {app.ctaLabel}
-          {external ? <ArrowUpRight size={14} aria-hidden /> : <ArrowRight size={14} aria-hidden />}
+          {isExternal(target) ? <ArrowUpRight size={14} aria-hidden /> : <ArrowRight size={14} aria-hidden />}
         </span>
-      </div>
-    </a>
+      </span>
+    </Link>
   )
 }
 
@@ -250,10 +194,10 @@ function HomePage({ navigate }: { navigate: (path: string) => void }) {
   const rest = apps.filter(a => !a.featured)
   return (
     <>
-      <HeroCarousel navigate={navigate} />
+      <Hero navigate={navigate} />
 
       <section className="section">
-        <h2 className="section-title">Featured apps</h2>
+        <h2 className="section-title">Featured products</h2>
         <div className="app-grid is-featured-grid">
           {featured.map(app => (
             <AppCard key={app.slug} app={app} navigate={navigate} />
@@ -263,7 +207,7 @@ function HomePage({ navigate }: { navigate: (path: string) => void }) {
 
       {rest.length > 0 && (
         <section className="section">
-          <h2 className="section-title">More from PDX Software</h2>
+          <h2 className="section-title">More from Harborline</h2>
           <div className="app-grid">
             {rest.map(app => (
               <AppCard key={app.slug} app={app} navigate={navigate} />
@@ -295,28 +239,23 @@ function HomePage({ navigate }: { navigate: (path: string) => void }) {
 
 function AppMarketingPage({ app, navigate }: { app: AppRecord, navigate: (path: string) => void }) {
   const Icon = app.Icon
-  const external = app.ctaHref.startsWith('http') || app.ctaHref.startsWith('mailto:')
   return (
     <>
-      <section className="page-hero compact">
-        <div className="page-hero-logo" style={{ background: `${app.accent}1a`, color: app.accent }}>
+      <section className="page-hero">
+        <span className="page-hero-logo">
           <Icon size={28} aria-hidden />
-        </div>
-        <p className="domain">{app.name}</p>
+        </span>
+        <p className="eyebrow">{app.name}</p>
         <h1>{app.tagline}</h1>
         <p>{app.description}</p>
-        <a
-          className="button button-primary"
-          href={app.ctaHref}
-          onClick={(event) => {
-            if (external) return
-            event.preventDefault()
-            navigate(app.ctaHref)
-          }}
-        >
-          {app.ctaLabel}
-          {external ? <ArrowUpRight size={16} aria-hidden /> : <ArrowRight size={16} aria-hidden />}
-        </a>
+        {/* Products with no destination of their own (the card links here) would
+            otherwise render a button pointing at the page you are already on. */}
+        {app.ctaHref !== `/${app.slug}` && (
+          <Link className="button button-primary" href={app.ctaHref} navigate={navigate}>
+            {app.ctaLabel}
+            {isExternal(app.ctaHref) ? <ArrowUpRight size={16} aria-hidden /> : <ArrowRight size={16} aria-hidden />}
+          </Link>
+        )}
       </section>
       {app.features.length > 0 && (
         <section className="section detail-grid">
@@ -333,14 +272,31 @@ function AppMarketingPage({ app, navigate }: { app: AppRecord, navigate: (path: 
   )
 }
 
+function NotFoundPage({ navigate }: { navigate: (path: string) => void }) {
+  return (
+    <section className="not-found">
+      <FluidMark className="hero-mark" preset="ribbon" label="Harborline" />
+      <h1>That page moved on.</h1>
+      <p>
+        The link you followed does not match anything here. Every Harborline product is listed on
+        the front page.
+      </p>
+      <Link className="button button-primary" href="/" navigate={navigate}>
+        See the products
+        <ArrowRight size={16} aria-hidden />
+      </Link>
+    </section>
+  )
+}
+
 function PrivacyPage() {
   return (
-    <LegalPage title="Privacy Policy" updated="May 26, 2026">
+    <LegalPage title="Privacy Policy" updated="August 10, 2026">
       <p>
-        This policy covers every product PDX Software publishes or supports, including App Sweep,
-        Renamer, Prompt Producer, Fly, Book Cook, AI Dev Sidebar, Spooool, Make The App, alex, and
-        the Harborline Labs experiments. It also covers the marketing pages at pdx.software.
-        Harborline Holdings is the company behind PDX Software.
+        This policy covers every product The Harborline Company publishes or supports, including
+        App Sweep, Renamer, Prompt Producer, Fly, Book Cook, AI Dev Sidebar, Spooool, Make The App,
+        alex, and the Harborline Labs experiments. It also covers the marketing pages at
+        theharborline.co.
       </p>
       <h2>What each product collects</h2>
       <h3>App Sweep (macOS desktop)</h3>
@@ -352,14 +308,14 @@ function PrivacyPage() {
       <h3>Renamer</h3>
       <p>
         Does not collect data from users. Renamer does not create accounts, collect analytics,
-        transmit filenames, store user documents on PDX Software servers, or send rename activity
+        transmit filenames, store user documents on Harborline servers, or send rename activity
         to a remote service. Files, folders, filenames, previews, preferences, and rename actions
         stay on the user's device.
       </p>
-      <h3>Prompt Producer (App Store)</h3>
+      <h3>Prompt Producer</h3>
       <p>
-        The marketing site links to Prompt Producer's App Store listing. App-specific data handling
-        is disclosed through the App Store privacy details and any in-app notices for that app.
+        Prompt Producer's product page is informational. App-specific data handling is disclosed
+        through the app's store listing and any in-app notices for that app.
       </p>
       <h3>Fly (fly.pm)</h3>
       <p>
@@ -376,16 +332,16 @@ function PrivacyPage() {
         Workers, Durable Objects, Workflows, R2, D1, and AI services to draft, organize, render,
         export, and support long-form publishing work.
       </p>
-      <h3>AI Dev Sidebar (Chrome extension)</h3>
+      <h3>AI Dev Sidebar (browser extension)</h3>
       <p>
         AI Dev Sidebar processes browser and developer context only when the user installs the
-        extension, grants Chrome permissions, or invokes a visible side-panel, context-menu,
-        capture, automation, or local-tool feature. Its single purpose is to provide a Chrome side
+        extension, grants browser permissions, or invokes a visible side-panel, context-menu,
+        capture, automation, or local-tool feature. Its single purpose is to provide a browser side
         panel for local AI terminals, page inspection, captures, bookmarks, cookies, and browser
         workflow tools.
       </p>
       <p>
-        The extension can process the following Chrome extension data categories when needed for
+        The extension can process the following browser extension data categories when needed for
         user-facing features: website content and page resources, active-tab URL/title/fav icon,
         web browsing activity, bookmarks, history, downloads, cookies and other authentication
         information, extension settings, browser settings, screen/tab/audio captures, user-entered
@@ -395,36 +351,36 @@ function PrivacyPage() {
         local or remote tool.
       </p>
       <p>
-        The requested Chrome permissions are used as follows: <code>storage</code> and
+        The requested browser permissions are used as follows: <code>storage</code> and{' '}
         <code>unlimitedStorage</code> store extension settings, onboarding state, captures, and
         workflow state in the browser profile; <code>sidePanel</code> displays the primary
-        interface; <code>tabs</code>, <code>activeTab</code>, <code>webNavigation</code>,
+        interface; <code>tabs</code>, <code>activeTab</code>, <code>webNavigation</code>,{' '}
         <code>scripting</code>, and host access to <code>&lt;all_urls&gt;</code> support page
         inspection, selected-page automation, visible-tab capture, and user-directed tools across
         sites the user chooses to work with; <code>contextMenus</code> adds explicit browser menu
-        actions; <code>tabCapture</code>, <code>desktopCapture</code>, and
-        <code>offscreen</code> support screen, tab, audio, and recording workflows;
-        <code>bookmarks</code>, <code>history</code>, <code>cookies</code>,
-        <code>downloads</code>, <code>browsingData</code>, <code>privacy</code>, and
+        actions; <code>tabCapture</code>, <code>desktopCapture</code>, and{' '}
+        <code>offscreen</code> support screen, tab, audio, and recording workflows;{' '}
+        <code>bookmarks</code>, <code>history</code>, <code>cookies</code>,{' '}
+        <code>downloads</code>, <code>browsingData</code>, <code>privacy</code>, and{' '}
         <code>contentSettings</code> support browser-data management surfaces shown in the
         extension; <code>declarativeNetRequest</code> supports user-visible request rules and
-        inspection workflows; <code>management</code> supports extension/profile diagnostics;
-        <code>search</code> sends user-entered searches through Chrome's default search provider;
-        <code>alarms</code> runs scheduled local extension work; and
+        inspection workflows; <code>management</code> supports extension/profile diagnostics;{' '}
+        <code>search</code> sends user-entered searches through the browser's default search
+        provider; <code>alarms</code> runs scheduled local extension work; and{' '}
         <code>nativeMessaging</code> connects to an optional local native host selected by the
         user for terminals, local files, local AI tools, and developer automation.
       </p>
       <p>
         By default, AI Dev Sidebar stores extension data locally in the user's browser profile and,
-        where configured, in the user's local native host. PDX Software does not receive browsing
+        where configured, in the user's local native host. Harborline does not receive browsing
         history, page content, cookies, captures, terminal output, or prompts by default. If the
         user configures a hosted sidebar API, AI service, automation endpoint, or other third-party
         integration, the extension sends only the data needed for that requested feature to the
-        configured service over HTTPS or the platform transport provided by Chrome/native
+        configured service over HTTPS or the platform transport provided by the browser or native
         messaging.
       </p>
       <p>
-        PDX Software does not sell extension data, share it with advertising platforms, use it for
+        Harborline does not sell extension data, share it with advertising platforms, use it for
         retargeting or interest-based advertising, transfer it to data brokers, or use it to
         determine creditworthiness. Humans do not read extension user data unless the user asks for
         support involving specific data, access is necessary to investigate abuse or security
@@ -434,8 +390,8 @@ function PrivacyPage() {
       </p>
       <p>
         Users can delete extension data by clearing the extension's browser storage, removing the
-        extension, clearing relevant Chrome browsing data, deleting local native-host files, or
-        requesting deletion of any PDX-hosted account data by emailing{' '}
+        extension, clearing relevant browsing data, deleting local native-host files, or
+        requesting deletion of any Harborline-hosted account data by emailing{' '}
         <a href={`mailto:${legalEmail}`}>{legalEmail}</a>.
       </p>
       <h3>Spooool (spooool.com)</h3>
@@ -482,18 +438,18 @@ function PrivacyPage() {
       <h3>Why the Google OAuth scopes are needed</h3>
       <p>
         Fly requests <code>openid</code>, <code>email</code>, and <code>profile</code> to create
-        and secure the user's Fly account and show the correct signed-in identity. Fly requests
+        and secure the user's Fly account and show the correct signed-in identity. Fly requests{' '}
         <code>https://www.googleapis.com/auth/gmail.modify</code> because the inbox feature must
         import messages and threads, read labels and history for incremental sync, and apply or
         update labels when the user performs inbox actions in Fly; read-only Gmail scopes would
-        not support the visible label-management and mailbox-triage actions. Fly requests
+        not support the visible label-management and mailbox-triage actions. Fly requests{' '}
         <code>https://www.googleapis.com/auth/contacts.readonly</code> to show saved Google
-        contacts in recipient autocomplete and contact search. Fly requests
+        contacts in recipient autocomplete and contact search. Fly requests{' '}
         <code>https://www.googleapis.com/auth/contacts.other.readonly</code> to include email
         addresses from people the user has interacted with but has not saved as formal contacts,
-        which is necessary for useful compose autocomplete. Fly requests
+        which is necessary for useful compose autocomplete. Fly requests{' '}
         <code>https://www.googleapis.com/auth/calendar.readonly</code> to list calendars and show
-        events in the user's workspace. Fly requests
+        events in the user's workspace. Fly requests{' '}
         <code>https://www.googleapis.com/auth/calendar.events</code> only for calendar surfaces
         where the user chooses to create or update events from Fly; read-only calendar scopes
         would not allow those user-directed edits.
@@ -539,15 +495,16 @@ function PrivacyPage() {
         prevention, legal compliance, or backup recovery. Backups and operational logs are deleted
         or overwritten on their normal retention cycle.
       </p>
-      <h3>Marketing site (pdx.software)</h3>
+      <h3>Marketing site (theharborline.co)</h3>
       <p>
         Static pages served by Cloudflare Workers with a small Hono backend for product + status
-        endpoints. No advertising pixels, no session replay, no third-party analytics.
+        endpoints. No advertising pixels, no session replay, no third-party analytics. The former
+        product domain, pdx.software, now redirects here.
       </p>
       <h2>Shared infrastructure</h2>
       <p>
         Every product runs on Cloudflare Workers in the same account. Cloudflare may keep
-        operational logs of HTTPS requests under their privacy policy; PDX Software does not
+        operational logs of HTTPS requests under their privacy policy; Harborline does not
         retain those logs ourselves.
       </p>
       <h2>Contact</h2>
@@ -560,9 +517,9 @@ function PrivacyPage() {
 
 function TermsPage() {
   return (
-    <LegalPage title="Terms of Service" updated="May 26, 2026">
+    <LegalPage title="Terms of Service" updated="August 10, 2026">
       <p>
-        These terms govern access to PDX Software products, product websites, browser extensions,
+        These terms govern access to Harborline products, product websites, browser extensions,
         desktop apps, hosted services, APIs, and support channels. By using a product, creating an
         account, installing an extension, or visiting a hosted app, you agree to these terms and to
         any product-specific notices shown inside that product.
@@ -570,8 +527,8 @@ function TermsPage() {
       <h2>Accounts and responsibility</h2>
       <p>
         You are responsible for the accounts, devices, browser profiles, API keys, files, prompts,
-        links, videos, mailboxes, calendars, manuscripts, and other content you connect to a PDX
-        Software product. Keep credentials secure and use each product only for accounts and data
+        links, videos, mailboxes, calendars, manuscripts, and other content you connect to a
+        Harborline product. Keep credentials secure and use each product only for accounts and data
         you are allowed to access.
       </p>
       <h2>Acceptable use</h2>
@@ -585,8 +542,8 @@ function TermsPage() {
       </p>
       <h2>User content</h2>
       <p>
-        You keep ownership of content you create, upload, connect, or import. You grant PDX
-        Software the limited permission needed to host, store, process, transform, display, search,
+        You keep ownership of content you create, upload, connect, or import. You grant Harborline
+        the limited permission needed to host, store, process, transform, display, search,
         transmit, back up, and support that content so the selected product can operate. You are
         responsible for having the rights and consents needed for anything you submit, including
         emails, files, contacts, videos, manuscripts, prompts, browser data, and links.
@@ -604,7 +561,7 @@ function TermsPage() {
         Some products connect to platforms such as Apple, Google, Cloudflare, Brave or Chromium
         browsers, payment processors, email providers, storage providers, AI model providers, and
         local developer tools. Your use of those integrations remains subject to the third party's
-        own terms, limits, account permissions, and availability. PDX Software is not responsible
+        own terms, limits, account permissions, and availability. Harborline is not responsible
         for third-party service outages, policy changes, data returned by those services, or actions
         you take in those connected accounts.
       </p>
@@ -623,7 +580,7 @@ function TermsPage() {
       </p>
       <h2>Prompt Producer</h2>
       <p>
-        Prompt Producer is distributed through the Apple App Store. Apple's App Store terms and
+        Where Prompt Producer is distributed through an app storefront, that storefront's terms and
         any in-app terms apply in addition to these site terms.
       </p>
       <h2>Fly</h2>
@@ -671,9 +628,9 @@ function TermsPage() {
       </p>
       <h2>Intellectual property</h2>
       <p>
-        PDX Software products, code, branding, interfaces, documentation, and service design are
-        owned by Harborline Holdings or its licensors. These terms do not grant permission to copy,
-        resell, reverse engineer, or create a competing hosted service from non-public product
+        Harborline products, code, branding, interfaces, documentation, and service design are
+        owned by The Harborline Company or its licensors. These terms do not grant permission to
+        copy, resell, reverse engineer, or create a competing hosted service from non-public product
         components except where an open-source license expressly allows it.
       </p>
       <h2>Privacy</h2>
@@ -686,17 +643,17 @@ function TermsPage() {
       <p>
         Products are provided as-is and as-available to the fullest extent permitted by law. We do
         not promise uninterrupted service, error-free output, preservation of every item of data, or
-        fitness for a particular use. To the fullest extent permitted by law, PDX Software and
-        Harborline Holdings are not liable for indirect, incidental, consequential, special,
-        exemplary, or punitive damages, lost profits, lost revenue, lost data, or loss of goodwill.
-        Our total liability for a product is limited to the amount you paid for that product in the
-        12 months before the claim, or 100 USD if you paid nothing.
+        fitness for a particular use. To the fullest extent permitted by law, The Harborline Company
+        is not liable for indirect, incidental, consequential, special, exemplary, or punitive
+        damages, lost profits, lost revenue, lost data, or loss of goodwill. Our total liability for
+        a product is limited to the amount you paid for that product in the 12 months before the
+        claim, or 100 USD if you paid nothing.
       </p>
       <h2>Indemnity</h2>
       <p>
-        You agree to defend and indemnify PDX Software and Harborline Holdings from claims, losses,
-        liabilities, damages, costs, and expenses arising from your content, your misuse of a
-        product, your violation of these terms, or your violation of law or third-party rights.
+        You agree to defend and indemnify The Harborline Company from claims, losses, liabilities,
+        damages, costs, and expenses arising from your content, your misuse of a product, your
+        violation of these terms, or your violation of law or third-party rights.
       </p>
       <h2>Termination</h2>
       <p>
@@ -720,9 +677,9 @@ function TermsPage() {
 function SupportPage() {
   return (
     <>
-      <section className="page-hero compact">
-        <p className="domain">Support</p>
-        <h1>Help across every PDX Software product.</h1>
+      <section className="page-hero">
+        <p className="eyebrow">Support</p>
+        <h1>Help across every Harborline product.</h1>
         <p>
           Include the product name, the macOS or browser version, and any error message you saw.
           For Fly we'll also need the signed-in email address so we can look the account up.
@@ -755,7 +712,7 @@ function LegalPage({
 }) {
   return (
     <article className="legal-page">
-      <p className="domain">PDX Software</p>
+      <p className="eyebrow">The Harborline Company</p>
       <h1>{title}</h1>
       <p className="updated">Updated {updated}</p>
       <div className="legal-copy">{children}</div>
@@ -780,17 +737,12 @@ function ContactBand() {
 
 export default function App() {
   const { pathname, navigate } = usePathname()
-  const mode = getSiteMode()
-  const currentPath = resolvePath(pathname, mode)
-  const page = useMemo(() => {
-    if (mode === 'holding') return <HoldingHome />
+  const currentPath = resolvePath(pathname)
 
-    // App marketing pages: /<slug>
-    if (currentPath.startsWith('/') && currentPath.length > 1) {
-      const slug = currentPath.slice(1).replace(/\/.*$/, '')
-      const app = getAppBySlug(slug)
-      if (app) return <AppMarketingPage app={app} navigate={navigate} />
-    }
+  const page = useMemo(() => {
+    // Product pages: /<slug>
+    const app = currentPath.length > 1 ? getAppBySlug(currentPath.slice(1)) : undefined
+    if (app) return <AppMarketingPage app={app} navigate={navigate} />
 
     switch (currentPath) {
       case '/':
@@ -803,12 +755,12 @@ export default function App() {
       case '/support':
         return <SupportPage />
       default:
-        return <HomePage navigate={navigate} />
+        return <NotFoundPage navigate={navigate} />
     }
-  }, [currentPath, mode, navigate])
+  }, [currentPath, navigate])
 
   return (
-    <Shell mode={mode} pathname={currentPath} navigate={navigate}>
+    <Shell pathname={currentPath} navigate={navigate}>
       {page}
     </Shell>
   )
