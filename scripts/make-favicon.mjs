@@ -1,54 +1,60 @@
 /**
- * Emits public/favicon.svg — a frozen vector frame of the mark, in the
- * app-icon treatment from the design handoff (28px ink chip, 8px radius,
- * paper particles). Canvas does not survive favicon/PNG/PDF export, so the
+ * Emits public/favicon.svg — a frozen vector frame of the mark, in the app-icon
+ * treatment from the design handoff (ink chip, rounded corners, paper
+ * particles). Canvas does not survive favicon, PNG, or PDF export, so the
  * static form has to be vector.
  *
- * Run: node scripts/make-favicon.mjs
+ * It runs the real engine from src/lib/mark.ts rather than drawing the target
+ * shape, because the target on its own is a bare diagonal — the mark is what
+ * the field looks like once the flow has spread it across the disc.
+ *
+ * Run: pnpm favicon
  */
 import { writeFileSync, mkdirSync } from 'node:fs'
+import {
+  PRESETS,
+  advance,
+  particleAlpha,
+  rimFalloff,
+  seedParticles,
+  seedTargets,
+} from '../src/lib/mark.ts'
 
-const N = 260
 const SIZE = 64
 const R = SIZE / 2
+const COUNT = 760 // enough surviving particles to read as a disc at 16px
+const SETTLE = 420 // frames to let the field spread and reach its steady state
 
-/** Same target shape as FluidMark: a sine wave, gaussian-thickened. */
-function waveTarget(i, n) {
-  const u = (i / n) * 2 - 1
-  let x = u + (Math.random() - 0.5) * 0.05
-  const g = (Math.random() + Math.random() + Math.random() - 1.5) / 1.5
-  let y = Math.sin(u * 2.1) * 0.3 + g * (0.06 + 0.13 * (1 - Math.abs(u) * 0.5))
-  const d = Math.hypot(x, y)
-  if (d > 0.9) {
-    const k = 0.9 / d
-    x *= k
-    y *= k
-  }
-  return [x, y]
+const opts = { ...PRESETS.curl, count: COUNT }
+const particles = seedParticles(COUNT)
+const targets = seedTargets(COUNT)
+
+for (let f = 0; f < SETTLE; f++) {
+  for (let i = 0; i < COUNT; i++) advance(particles[i], targets[i], opts, f / 60)
 }
 
 const dots = []
-for (let i = 0; i < N; i++) {
-  const [x, y] = waveTarget(i, N)
-  const d = Math.hypot(x, y)
-  // Radial falloff, applied as rim² — same as the canvas mark.
-  const rim = 1 - Math.max(0, Math.min(1, (d - 0.46) / 0.46))
-  const alpha = Math.min(0.92, rim * rim * 0.95)
-  if (alpha < 0.03) continue
-  const r = (0.5 + Math.random() * 0.8) * (0.7 + 0.5 * rim)
+for (const q of particles) {
+  const rim = rimFalloff(q.x, q.y)
+  if (rim <= 0.01) continue
+  const alpha = particleAlpha(rim, Math.hypot(q.vx, q.vy), opts.glow)
+  if (alpha < 0.05) continue
+  // Dots rather than streaks: at 16px a hairline segment disappears, and the
+  // canvas mark falls back to the same dot for sub-pixel segments.
+  const r = Math.max(0.4, q.s * (R / 74) * (0.7 + 0.5 * rim) * q.sw * opts.weight) * 1.6
   dots.push(
-    `<circle cx="${(R + x * R).toFixed(2)}" cy="${(R + y * R).toFixed(2)}" r="${r.toFixed(2)}" opacity="${alpha.toFixed(2)}"/>`,
+    `<circle cx="${(R + q.x * R).toFixed(1)}" cy="${(R + q.y * R).toFixed(1)}" r="${r.toFixed(2)}" opacity="${alpha.toFixed(2)}"/>`,
   )
 }
 
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${SIZE} ${SIZE}" width="${SIZE}" height="${SIZE}">
 <rect width="${SIZE}" height="${SIZE}" rx="14" fill="#1c2a22"/>
 <g fill="#f0efe6">
-${dots.join('\n')}
+${dots.join('')}
 </g>
 </svg>
 `
 
 mkdirSync('public', { recursive: true })
 writeFileSync('public/favicon.svg', svg)
-console.log(`wrote public/favicon.svg (${dots.length} particles)`)
+console.log(`wrote public/favicon.svg (${dots.length} particles, ${(svg.length / 1024).toFixed(1)} kB)`)
