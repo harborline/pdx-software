@@ -9,15 +9,23 @@
 :root {
   color-scheme: light;
 
-  /* Colour */
+  /*
+   * Colour. Ink, paper, card, light sage and hairline are the handoff values
+   * verbatim. The four that carry small text are darkened from the handoff to
+   * clear WCAG AA (4.5:1) on both paper and card — every one of them failed as
+   * specified, body copy at 3.95:1 and the primary button at 4.23:1:
+   *   forest #4e7c4a → #436b40   sage  #7d8d76 → #5d6b57
+   *   slate  #3d7d8a → #397581   muted #6b7a66 → #62705e
+   * Hue is preserved; the shift is lightness only.
+   */
   --ink: #1c2a22;
   --paper: #f0efe6;
   --card: #fbfbf6;
   --light-sage: #cfe3c4;
-  --forest: #4e7c4a;
-  --sage: #7d8d76;
-  --slate-teal: #3d7d8a;
-  --muted: #6b7a66;
+  --forest: #436b40;
+  --sage: #5d6b57;
+  --slate-teal: #397581;
+  --muted: #62705e;
   --hairline: #e2e2d6;
 
   /* Type */
