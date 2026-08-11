@@ -1,4 +1,5 @@
 import type { LucideIcon } from 'lucide-react'
+import { PRODUCT_SLUGS } from './routes'
 import {
   AppWindow,
   BookOpen,
@@ -19,8 +20,11 @@ export interface AppFeature {
 }
 
 export interface AppRecord {
-  /** Slug used in the URL: pdx.software/<slug> */
-  slug: string
+  /**
+   * Slug used in the URL: theharborline.co/<slug>. Typed against the Worker's
+   * 404 table so adding a product without updating `routes.ts` fails the build.
+   */
+  slug: (typeof PRODUCT_SLUGS)[number]
   name: string
   tagline: string
   description: string
@@ -32,8 +36,6 @@ export interface AppRecord {
   /** Top-of-grid featured cards get the bigger tile + logo treatment. */
   featured: boolean
   Icon: LucideIcon
-  /** Brand colour used on the logo chip + accents. */
-  accent: string
   features: AppFeature[]
   /** Lines shown in the home-page hero carousel. */
   carouselLines: string[]
@@ -51,7 +53,6 @@ export const apps: AppRecord[] = [
     status: 'Mac utility',
     featured: true,
     Icon: AppWindow,
-    accent: '#1769e0',
     features: [
       {
         title: 'Review before removal',
@@ -75,14 +76,12 @@ export const apps: AppRecord[] = [
     name: 'Prompt Producer',
     tagline: 'Turn rough ideas into polished prompts.',
     description:
-      'An App Store app for drafting, refining, and reusing prompts for everyday AI work.',
-    ctaLabel: 'Open in App Store',
-    ctaHref: 'https://apps.apple.com/app/id6772548801',
-    cardHref: 'https://apps.apple.com/app/id6772548801',
-    status: 'App Store',
+      'An app for drafting, refining, and reusing prompts for everyday AI work.',
+    ctaLabel: 'See Prompt Producer',
+    ctaHref: '/prompt-producer',
+    status: 'Prompt utility',
     featured: true,
     Icon: Sparkles,
-    accent: '#b7791f',
     features: [
       {
         title: 'Prompt-ready drafts',
@@ -91,10 +90,6 @@ export const apps: AppRecord[] = [
       {
         title: 'Reusable patterns',
         body: 'Keep useful prompt structures close at hand so repeated AI workflows start from a better baseline.',
-      },
-      {
-        title: 'Available on the App Store',
-        body: 'Install Prompt Producer from its Apple App Store listing using the linked app id.',
       },
     ],
     carouselLines: [
@@ -112,7 +107,6 @@ export const apps: AppRecord[] = [
     status: 'AI productivity workspace',
     featured: true,
     Icon: BrainCircuit,
-    accent: '#4f46e5',
     features: [
       {
         title: 'Connected workspace',
@@ -146,7 +140,6 @@ export const apps: AppRecord[] = [
     status: 'AI authoring studio',
     featured: false,
     Icon: BookOpen,
-    accent: '#d08770',
     features: [],
     carouselLines: [
       'Outline first, draft scene-by-scene, iterate on tone last.',
@@ -163,7 +156,6 @@ export const apps: AppRecord[] = [
     status: 'Video platform',
     featured: false,
     Icon: Clapperboard,
-    accent: '#2f855a',
     features: [],
     carouselLines: [
       'Upload, watch, and share video on a Cloudflare-native platform.',
@@ -176,11 +168,10 @@ export const apps: AppRecord[] = [
     description:
       'A Chrome and Chromium extension that connects page inspection, recordings, bookmarks, history, cookies, synced resources, and local AI CLI workflows from the browser.',
     ctaLabel: 'View on GitHub',
-    ctaHref: 'https://github.com/harborline/ai-dev-sidebar',
+    ctaHref: 'https://github.com/harborline/extension',
     status: 'Browser extension',
     featured: false,
     Icon: Code2,
-    accent: '#c05621',
     features: [],
     carouselLines: [
       'Browser context and local AI developer tools in one extension.',
@@ -197,7 +188,6 @@ export const apps: AppRecord[] = [
     status: 'Prompt-to-app builder',
     featured: false,
     Icon: Wand2,
-    accent: '#88c0d0',
     features: [],
     carouselLines: [
       'Make Any App with the Modern Stack',
@@ -214,7 +204,6 @@ export const apps: AppRecord[] = [
     status: 'Mac · iOS · watchOS',
     featured: false,
     Icon: MessageCircle,
-    accent: '#b48ead',
     features: [],
     carouselLines: [
       'A native, always-on companion across Mac, iPhone, and Watch.',
@@ -239,15 +228,6 @@ export function homeCarouselLines(): Array<{ app: AppRecord, line: string }> {
   return out
 }
 
-// Legacy export kept for older imports.
-export const companies = apps.map(a => ({
-  name: a.name,
-  description: a.description,
-  href: a.ctaHref,
-  status: a.status,
-  Icon: a.Icon,
-}))
-
 export const principles = [
   {
     title: 'Focused products',
@@ -266,4 +246,5 @@ export const principles = [
   },
 ]
 
+/** Cloudflare Email Routing address; unaffected by the pdx.software → theharborline.co redirect. */
 export const legalEmail = 'help@pdx.software'

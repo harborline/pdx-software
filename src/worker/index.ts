@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
+import { isKnownPath } from '../lib/routes'
 
 type Bindings = {
   ASSETS: Fetcher
@@ -12,9 +13,8 @@ app.use('/api/*', cors())
 app.get('/api/status', (c) => {
   return c.json({
     ok: true,
-    service: 'harborline.cloud',
-    company: 'Harborline Holdings',
-    productDomain: 'pdx.software',
+    service: 'theharborline.co',
+    company: 'The Harborline Company',
     products: [
       'App Sweep',
       'Prompt Producer',
@@ -25,26 +25,25 @@ app.get('/api/status', (c) => {
       'Make The App',
       'alex',
     ],
-    purpose: 'Holding company website and product support surface',
+    purpose: 'Company website and product support surface',
   })
 })
 
 app.get('/api/company', (c) => {
   return c.json({
-    name: 'Harborline Holdings',
-    domain: 'harborline.cloud',
-    productDomain: 'pdx.software',
+    name: 'The Harborline Company',
+    domain: 'theharborline.co',
     supportEmail: 'help@pdx.software',
     products: [
       {
         name: 'App Sweep',
         category: 'Mac utility',
-        url: 'https://pdx.software/about',
+        url: 'https://theharborline.co/app-sweep',
       },
       {
         name: 'Prompt Producer',
-        category: 'App Store prompt utility',
-        url: 'https://apps.apple.com/app/id6772548801',
+        category: 'Prompt utility',
+        url: 'https://theharborline.co/prompt-producer',
       },
       {
         name: 'Fly',
@@ -64,7 +63,7 @@ app.get('/api/company', (c) => {
       {
         name: 'AI Dev Sidebar',
         category: 'Browser developer extension',
-        url: 'https://github.com/harborline/ai-dev-sidebar',
+        url: 'https://github.com/harborline/extension',
       },
       {
         name: 'Make The App',
@@ -80,12 +79,25 @@ app.get('/api/company', (c) => {
   })
 })
 
-app.notFound((c) => {
-  if (new URL(c.req.url).pathname.startsWith('/api/')) {
+app.notFound(async (c) => {
+  const { pathname } = new URL(c.req.url)
+
+  if (pathname.startsWith('/api/')) {
     return c.json({ error: 'Not found' }, 404)
   }
 
-  return c.env.ASSETS.fetch(c.req.raw)
+  const res = await c.env.ASSETS.fetch(c.req.raw)
+
+  // The asset handler serves index.html for every unmatched path (SPA mode),
+  // which would answer 200 for URLs that do not exist. Re-stamp the status so
+  // dead inbound links are actually reported as dead. Guarded on text/html so
+  // a real static asset is never mislabelled.
+  const isHtml = res.headers.get('content-type')?.includes('text/html') ?? false
+  if (res.status === 200 && isHtml && !isKnownPath(pathname)) {
+    return new Response(res.body, { status: 404, headers: res.headers })
+  }
+
+  return res
 })
 
 export default app
