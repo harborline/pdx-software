@@ -13,6 +13,7 @@
 import { writeFileSync, mkdirSync } from 'node:fs'
 import {
   PRESETS,
+  SPEED,
   advance,
   particleAlpha,
   rimFalloff,
@@ -23,7 +24,10 @@ import {
 const SIZE = 64
 const R = SIZE / 2
 const COUNT = 760 // enough surviving particles to read as a disc at 16px
-const SETTLE = 420 // frames to let the field spread and reach its steady state
+// Frames to let the field spread and reach its steady state. Divided by SPEED
+// so the frozen frame is the same distance in no matter how slowly the live
+// mark runs — the favicon should not change when the animation is retimed.
+const SETTLE = Math.round(420 / SPEED)
 
 const opts = { ...PRESETS.curl, count: COUNT }
 const particles = seedParticles(COUNT)

@@ -3,6 +3,7 @@ import {
   type Particle,
   type Preset,
   PRESETS,
+  SPEED,
   advance,
   particleAlpha,
   rimFalloff,
@@ -77,7 +78,10 @@ export function FluidMark({
         // TRAIL WASH — never clearRect. Punching alpha out of the previous
         // frame is what makes this read as fluid rather than as a dot swarm.
         ctx!.globalCompositeOperation = 'destination-out'
-        ctx!.globalAlpha = R < 70 ? opts.wash * 0.5 : opts.wash // small canvases wash gentler
+        // Small canvases wash gentler. Scaled by SPEED because a slower
+        // particle covers less ground per frame — fading proportionally slower
+        // keeps the tails the same LENGTH instead of cropping them.
+        ctx!.globalAlpha = (R < 70 ? opts.wash * 0.5 : opts.wash) * SPEED
         ctx!.fillStyle = '#000'
         ctx!.fillRect(0, 0, w, h)
         ctx!.globalCompositeOperation = 'source-over'
@@ -127,8 +131,11 @@ export function FluidMark({
       // Settle into the wave unpainted, then run the real loop long enough to
       // reach the steady state the animation lives at. A frozen frame is a
       // legitimate form of the mark — it is also the print lockup.
-      for (let i = 0; i < 420; i++) step(i / 60, false)
-      for (let i = 0; i < 20; i++) step(7 + i / 60, true)
+      // Frame counts divide by SPEED so the still frame settles just as far as
+      // it did before: slower frames, same amount of simulated time.
+      const settle = Math.round(420 / SPEED)
+      for (let i = 0; i < settle; i++) step(i / 60, false)
+      for (let i = 0; i < 20; i++) step(settle / 60 + i / 60, true)
     }
 
     function draw() {

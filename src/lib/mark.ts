@@ -12,6 +12,21 @@
 export type FieldName = 'curl' | 'shear' | 'vortex'
 export type Preset = 'curl' | 'shear' | 'vortex' | 'ribbon'
 
+/**
+ * Global pace. Below 1 the mark runs slower; this is the one number to turn.
+ *
+ * It is a time rescale of the integrator (`v += a; v *= damp; x += v`), so
+ * acceleration scales by SPEED² and damping by SPEED — the trajectories are
+ * identical and only the tempo changes. Editing `pull` or the field magnitudes
+ * instead would make it slower AND change the shape it settles into.
+ *
+ * Two knock-on effects are compensated where they are consumed, not here: alpha
+ * is derived from speed, and the trail wash is per-frame, so both are measured
+ * against SPEED rather than wall-clock. Otherwise slowing it down would also
+ * dim the field and shorten every tail.
+ */
+export const SPEED = 0.6
+
 /** Cheap hash-based value noise, two octaves, slowly advected. Curl field only. */
 export function potential(x: number, y: number, t: number): number {
   const hash = (i: number, j: number) => {
@@ -158,12 +173,15 @@ export function advance(
 ): void {
   // Sampled at 2.4x particle space so noise features span roughly a third of
   // the disc — big enough to move neighbours as a sheet rather than a swarm.
-  const [fx, fy] = FIELDS[opts.field](q.x * 2.4, q.y * 2.4, t + q.ph * 0.12)
+  const [fx, fy] = FIELDS[opts.field](q.x * 2.4, q.y * 2.4, (t + q.ph * 0.12) * SPEED)
 
-  q.vx += (target[0] - q.x) * opts.pull + fx
-  q.vy += (target[1] - q.y) * opts.pull + fy
-  q.vx *= opts.damp // damping >> pull is what keeps it laminar
-  q.vy *= opts.damp
+  q.vx += ((target[0] - q.x) * opts.pull + fx) * SPEED * SPEED
+  q.vy += ((target[1] - q.y) * opts.pull + fy) * SPEED * SPEED
+  // damping >> pull is what keeps it laminar; the exponent stretches the
+  // relaxation over proportionally more frames instead of weakening it.
+  const damp = opts.damp ** SPEED
+  q.vx *= damp
+  q.vy *= damp
 
   q.px = q.x
   q.py = q.y
@@ -200,5 +218,7 @@ export function rimFalloff(x: number, y: number): number {
  * made earlier versions read as bacteria. Fast water is bright, settled fades.
  */
 export function particleAlpha(rim: number, speed: number, glow: number): number {
-  return Math.min(0.92, rim * rim * (0.26 + Math.min(0.66, speed * glow)))
+  // Speed is read against the mark's own tempo, so SPEED changes the pace
+  // without dimming the whole field.
+  return Math.min(0.92, rim * rim * (0.26 + Math.min(0.66, (speed / SPEED) * glow)))
 }
