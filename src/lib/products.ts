@@ -7,12 +7,12 @@ export const LISTED_PRODUCTS = [
     slug: 'keepout',
     name: 'Keepout',
     category: 'Private notes for Mac, iPhone, and iPad',
-    url: 'https://harborline.cloud/keepout',
+    url: 'https://keepout.app',
   },
   {
     slug: 'free-speech-tts',
     name: 'Free Speech TTS',
     category: 'Text to speech for macOS',
-    url: 'https://pdx.software/free-speech',
+    url: 'https://hearin.app',
   },
 ] as const
