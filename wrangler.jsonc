@@ -8,10 +8,14 @@
     "binding": "ASSETS",
     "not_found_handling": "single-page-application"
   },
+  // Both hostnames are custom domains, not zone routes. A zone route only
+  // intercepts a hostname that already resolves through the proxy — it creates
+  // no DNS record of its own — so the apex, which has none, resolved nowhere
+  // and the route never fired. A custom domain creates and keeps the record.
   "routes": [
     {
-      "pattern": "theharborline.co/*",
-      "zone_name": "theharborline.co"
+      "pattern": "theharborline.co",
+      "custom_domain": true
     },
     {
       "pattern": "www.theharborline.co",
