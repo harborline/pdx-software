@@ -197,7 +197,7 @@ function HomePage({ navigate }: { navigate: (path: string) => void }) {
       <Hero navigate={navigate} />
 
       <section className="section">
-        <h2 className="section-title">Featured products</h2>
+        <h2 className="section-title">Products</h2>
         <div className="app-grid is-featured-grid">
           {featured.map(app => (
             <AppCard key={app.slug} app={app} navigate={navigate} />

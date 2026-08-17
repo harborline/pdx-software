@@ -1,7 +1,9 @@
 import type { LucideIcon } from 'lucide-react'
+import { LISTED_PRODUCTS } from './products'
 import { PRODUCT_SLUGS } from './routes'
 import {
   AppWindow,
+  AudioLines,
   BookOpen,
   BrainCircuit,
   Clapperboard,
@@ -42,6 +44,70 @@ export interface AppRecord {
 }
 
 export const apps: AppRecord[] = [
+  {
+    slug: LISTED_PRODUCTS[0].slug,
+    name: LISTED_PRODUCTS[0].name,
+    tagline: 'Private, local AI notes.',
+    description:
+      'A private notes app for Mac, iPhone, and iPad with encrypted Markdown, connected ideas, and local AI.',
+    ctaLabel: 'Explore Keepout',
+    ctaHref: LISTED_PRODUCTS[0].url,
+    cardHref: '/keepout',
+    status: 'Mac · iPhone · iPad',
+    featured: true,
+    Icon: ShieldCheck,
+    features: [
+      {
+        title: 'Private by design',
+        body: 'AES-256-GCM encryption protects every note at rest. There is no account, cloud sync, analytics, remote prompt processing, or plaintext search index.',
+      },
+      {
+        title: 'Connected knowledge',
+        body: 'Link notes with wiki links, follow backlinks, search while the vault is unlocked, and explore an interactive knowledge graph.',
+      },
+      {
+        title: 'Local AI',
+        body: 'Ask questions, summarize notes, and suggest connections with Apple Foundation Models or an optional local MLX engine.',
+      },
+    ],
+    carouselLines: [
+      'Private notes with encrypted Markdown, connected ideas, and local AI.',
+    ],
+  },
+  {
+    slug: LISTED_PRODUCTS[1].slug,
+    name: LISTED_PRODUCTS[1].name,
+    tagline: 'Text to speech, local or cloud.',
+    description:
+      'A small macOS menu bar app for reading selected text aloud with free on-device voices and optional cloud providers.',
+    ctaLabel: 'Explore Free Speech TTS',
+    ctaHref: LISTED_PRODUCTS[1].url,
+    cardHref: '/free-speech-tts',
+    status: 'macOS menu bar app',
+    featured: true,
+    Icon: AudioLines,
+    features: [
+      {
+        title: 'Speak from anywhere',
+        body: 'Use a global hotkey, the menu bar action, or the macOS Services menu to read selected text aloud across the system.',
+      },
+      {
+        title: 'Free local voices',
+        body: 'Kokoro voices run entirely on the Mac, work without a network connection, and never send spoken text off the device.',
+      },
+      {
+        title: 'Optional cloud voices',
+        body: 'Connect ElevenLabs or Cartesia with your own API key when you want more voices. Both providers remain optional.',
+      },
+    ],
+    carouselLines: [
+      'Read selected text aloud with local or cloud voices.',
+    ],
+  },
+]
+
+/** Existing inbound product URLs remain available while omitted from the catalog. */
+const unlistedApps: AppRecord[] = [
   {
     slug: 'app-sweep',
     name: 'App Sweep',
@@ -212,8 +278,9 @@ export const apps: AppRecord[] = [
 ]
 
 export function getAppBySlug(slug: string): AppRecord | undefined {
-  if (slug === 'fly') return apps.find(a => a.slug === 'fly-mail')
-  return apps.find(a => a.slug === slug)
+  const allApps = [...apps, ...unlistedApps]
+  if (slug === 'fly') return allApps.find(a => a.slug === 'fly-mail')
+  return allApps.find(a => a.slug === slug)
 }
 
 /** Flat list of carousel lines shown on the home hero. Featured apps lead. */

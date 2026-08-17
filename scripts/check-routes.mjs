@@ -4,13 +4,20 @@
  * dead inbound link rather than a crash. Run: pnpm test
  */
 import assert from 'node:assert/strict'
+import { LISTED_PRODUCTS } from '../src/lib/products.ts'
 import { isKnownPath, resolvePath } from '../src/lib/routes.ts'
 import redirect from '../src/worker/redirect.ts'
 
 // Known paths, including trailing-slash and alias forms.
-for (const p of ['/', '/support', '/privacy', '/terms', '/tos', '/app-sweep', '/alex', '/fly-mail', '/about', '/marketing', '/fly', '/support/']) {
+for (const p of ['/', '/support', '/privacy', '/terms', '/tos', '/keepout', '/free-speech-tts', '/app-sweep', '/alex', '/fly-mail', '/about', '/marketing', '/fly', '/support/']) {
   assert.equal(isKnownPath(p), true, `expected ${p} to be a known path`)
 }
+
+assert.deepEqual(
+  LISTED_PRODUCTS.map(product => product.name),
+  ['Keepout', 'Free Speech TTS'],
+  'the public product catalog should contain only the two approved products',
+)
 
 // Unknown paths must not be absorbed by the SPA fallback.
 for (const p of ['/nope', '/app-sweep/extra', '/appsweep', '/privacy-policy']) {

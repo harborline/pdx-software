@@ -5,6 +5,8 @@
  */
 
 export const PRODUCT_SLUGS = [
+  'keepout',
+  'free-speech-tts',
   'app-sweep',
   'prompt-producer',
   'fly-mail',

@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
+import { LISTED_PRODUCTS } from '../lib/products'
 import { isKnownPath } from '../lib/routes'
 
 type Bindings = {
@@ -15,16 +16,7 @@ app.get('/api/status', (c) => {
     ok: true,
     service: 'theharborline.co',
     company: 'The Harborline Company',
-    products: [
-      'App Sweep',
-      'Prompt Producer',
-      'Fly',
-      'Book Cook',
-      'Spooool',
-      'AI Dev Sidebar',
-      'Make The App',
-      'alex',
-    ],
+    products: LISTED_PRODUCTS.map(product => product.name),
     purpose: 'Company website and product support surface',
   })
 })
@@ -34,48 +26,7 @@ app.get('/api/company', (c) => {
     name: 'The Harborline Company',
     domain: 'theharborline.co',
     supportEmail: 'help@pdx.software',
-    products: [
-      {
-        name: 'App Sweep',
-        category: 'Mac utility',
-        url: 'https://theharborline.co/app-sweep',
-      },
-      {
-        name: 'Prompt Producer',
-        category: 'Prompt utility',
-        url: 'https://theharborline.co/prompt-producer',
-      },
-      {
-        name: 'Fly',
-        category: 'AI productivity workspace and knowledge base',
-        url: 'https://fly.pm',
-      },
-      {
-        name: 'Book Cook',
-        category: 'AI authoring studio',
-        url: 'https://book-cook.com',
-      },
-      {
-        name: 'Spooool',
-        category: 'Video platform',
-        url: 'https://spooool.com',
-      },
-      {
-        name: 'AI Dev Sidebar',
-        category: 'Browser developer extension',
-        url: 'https://github.com/harborline/extension',
-      },
-      {
-        name: 'Make The App',
-        category: 'Prompt-to-app builder',
-        url: 'https://makethe.app',
-      },
-      {
-        name: 'alex',
-        category: 'Apple-platform conversational companion',
-        url: 'https://alex.chat',
-      },
-    ],
+    products: LISTED_PRODUCTS.map(({ name, category, url }) => ({ name, category, url })),
   })
 })
 
