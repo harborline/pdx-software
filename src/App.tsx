@@ -1,7 +1,7 @@
 import { ArrowRight, ArrowUpRight, Mail } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { TidelineMark } from './components/TidelineMark'
-import { type AppRecord, apps, getAppBySlug, homeCarouselLines, legalEmail, principles } from './lib/content'
+import { type AppRecord, apps, getAppBySlug, legalEmail, principles } from './lib/content'
 import { resolvePath } from './lib/routes'
 
 function usePathname() {
@@ -121,48 +121,12 @@ function Shell({
   )
 }
 
-function Hero({ navigate }: { navigate: (path: string) => void }) {
-  const lines = useMemo(homeCarouselLines, [])
-  const [index, setIndex] = useState(0)
-
-  useEffect(() => {
-    if (lines.length <= 1) return
-    const id = window.setInterval(() => {
-      setIndex(i => (i + 1) % lines.length)
-    }, 4200)
-    return () => window.clearInterval(id)
-  }, [lines.length])
-
-  const current = lines[index]
-  if (!current) return null
-  const currentDestination = appDestination(current.app)
-
+function Hero() {
   return (
-    <section className="hero-carousel">
+    <section className="hero">
       <TidelineMark className="hero-mark" label="The Harborline Company" />
       <p className="eyebrow">The Harborline Company · Research &amp; Development</p>
-      <div className="hero-line-wrap" aria-live="polite">
-        {/* Only the active line renders; the changing `key` remounts the h1 so
-            the entry keyframe restarts without absolute-position layering. */}
-        <h1 key={index} className="hero-line">{current.line}</h1>
-      </div>
-      <p className="hero-byline">
-        Currently:{' '}
-        <Link href={currentDestination} navigate={navigate}>{current.app.name}</Link>
-      </p>
-      <div className="hero-dots" role="tablist" aria-label="Product highlights">
-        {lines.map((line, i) => (
-          <button
-            key={line.app.slug}
-            type="button"
-            className={`hero-dot ${i === index ? 'is-active' : ''}`}
-            aria-label={line.app.name}
-            aria-selected={i === index}
-            role="tab"
-            onClick={() => setIndex(i)}
-          />
-        ))}
-      </div>
+      <h1 className="hero-tagline">Human Handcrafted Software</h1>
     </section>
   )
 }
@@ -194,7 +158,7 @@ function HomePage({ navigate }: { navigate: (path: string) => void }) {
   const rest = apps.filter(a => !a.featured)
   return (
     <>
-      <Hero navigate={navigate} />
+      <Hero />
 
       <section className="section">
         <h2 className="section-title">Products</h2>

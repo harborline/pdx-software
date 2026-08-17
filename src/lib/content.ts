@@ -39,8 +39,6 @@ export interface AppRecord {
   featured: boolean
   Icon: LucideIcon
   features: AppFeature[]
-  /** Lines shown in the home-page hero carousel. */
-  carouselLines: string[]
 }
 
 export const apps: AppRecord[] = [
@@ -49,7 +47,7 @@ export const apps: AppRecord[] = [
     name: LISTED_PRODUCTS[0].name,
     tagline: 'Private, local AI notes.',
     description:
-      'A private notes app for Mac, iPhone, and iPad with encrypted Markdown, connected ideas, and local AI.',
+      'Keepout keeps your notes wherever you want them to be. Encrypted by default, you can also easily share a finished draft with Substack for publishing.',
     ctaLabel: 'Explore Keepout',
     ctaHref: LISTED_PRODUCTS[0].url,
     cardHref: '/keepout',
@@ -70,16 +68,13 @@ export const apps: AppRecord[] = [
         body: 'Ask questions, summarize notes, and suggest connections with Apple Foundation Models or an optional local MLX engine.',
       },
     ],
-    carouselLines: [
-      'Private notes with encrypted Markdown, connected ideas, and local AI.',
-    ],
   },
   {
     slug: LISTED_PRODUCTS[1].slug,
     name: LISTED_PRODUCTS[1].name,
     tagline: 'Text to speech, local or cloud.',
     description:
-      'A small macOS menu bar app for reading selected text aloud with free on-device voices and optional cloud providers.',
+      'A small macOS menu bar app for reading selected text aloud with free on-device voices and optional BYOK cloud providers, ElevenLabs and Cartesia.',
     ctaLabel: 'Explore Free Speech TTS',
     ctaHref: LISTED_PRODUCTS[1].url,
     cardHref: '/free-speech-tts',
@@ -99,9 +94,6 @@ export const apps: AppRecord[] = [
         title: 'Optional cloud voices',
         body: 'Connect ElevenLabs or Cartesia with your own API key when you want more voices. Both providers remain optional.',
       },
-    ],
-    carouselLines: [
-      'Read selected text aloud with local or cloud voices.',
     ],
   },
 ]
@@ -133,9 +125,6 @@ const unlistedApps: AppRecord[] = [
         body: 'No analytics, no accounts, no telemetry. Theme, menu-bar visibility, and review-prompt state stay in local macOS preferences.',
       },
     ],
-    carouselLines: [
-      '1-Click to Quit, Delete, & Empty the Trash Bin.',
-    ],
   },
   {
     slug: 'prompt-producer',
@@ -157,9 +146,6 @@ const unlistedApps: AppRecord[] = [
         title: 'Reusable patterns',
         body: 'Keep useful prompt structures close at hand so repeated AI workflows start from a better baseline.',
       },
-    ],
-    carouselLines: [
-      'Prompt Producer turns rough requests into reusable prompts.',
     ],
   },
   {
@@ -191,9 +177,6 @@ const unlistedApps: AppRecord[] = [
         body: 'Triage conversations into links, tasks, follow-ups, daily overviews, launch notes, and calendar context without leaving the workspace.',
       },
     ],
-    carouselLines: [
-      'Fly connects email, notes, storage, and tasks into an AI-first workspace.',
-    ],
   },
   {
     slug: 'book-cook',
@@ -207,9 +190,6 @@ const unlistedApps: AppRecord[] = [
     featured: false,
     Icon: BookOpen,
     features: [],
-    carouselLines: [
-      'Outline first, draft scene-by-scene, iterate on tone last.',
-    ],
   },
   {
     slug: 'spooool',
@@ -223,9 +203,6 @@ const unlistedApps: AppRecord[] = [
     featured: false,
     Icon: Clapperboard,
     features: [],
-    carouselLines: [
-      'Upload, watch, and share video on a Cloudflare-native platform.',
-    ],
   },
   {
     slug: 'ai-dev-sidebar',
@@ -239,9 +216,6 @@ const unlistedApps: AppRecord[] = [
     featured: false,
     Icon: Code2,
     features: [],
-    carouselLines: [
-      'Browser context and local AI developer tools in one extension.',
-    ],
   },
   {
     slug: 'makethe-app',
@@ -255,9 +229,6 @@ const unlistedApps: AppRecord[] = [
     featured: false,
     Icon: Wand2,
     features: [],
-    carouselLines: [
-      'Make Any App with the Modern Stack',
-    ],
   },
   {
     slug: 'alex',
@@ -271,9 +242,6 @@ const unlistedApps: AppRecord[] = [
     featured: false,
     Icon: MessageCircle,
     features: [],
-    carouselLines: [
-      'A native, always-on companion across Mac, iPhone, and Watch.',
-    ],
   },
 ]
 
@@ -283,32 +251,20 @@ export function getAppBySlug(slug: string): AppRecord | undefined {
   return allApps.find(a => a.slug === slug)
 }
 
-/** Flat list of carousel lines shown on the home hero. Featured apps lead. */
-export function homeCarouselLines(): Array<{ app: AppRecord, line: string }> {
-  const out: Array<{ app: AppRecord, line: string }> = []
-  for (const a of apps.filter(a => a.featured)) {
-    for (const line of a.carouselLines) out.push({ app: a, line })
-  }
-  for (const a of apps.filter(a => !a.featured)) {
-    for (const line of a.carouselLines) out.push({ app: a, line })
-  }
-  return out
-}
-
 export const principles = [
   {
-    title: 'Focused products',
+    title: 'Purpose-driven product studio',
     body: 'Each product starts with a narrow job and earns complexity only when it makes that job clearer.',
     Icon: Compass,
   },
   {
-    title: 'Local-first where it matters',
+    title: 'Local, private, offline',
     body: 'Desktop utilities respect the device boundary; cloud products are explicit about what they store.',
     Icon: ShieldCheck,
   },
   {
-    title: 'Useful over loud',
-    body: 'The company site stays quiet because the products are meant to be judged by whether they solve real work.',
+    title: 'By People, for people',
+    body: "If it doesn't add value to the person using the product, then it shouldn't be in the product.",
     Icon: Hammer,
   },
 ]
