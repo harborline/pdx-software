@@ -1,6 +1,6 @@
 import { ArrowRight, ArrowUpRight, Mail } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
-import { FluidMark } from './components/FluidMark'
+import { TidelineMark } from './components/TidelineMark'
 import { type AppRecord, apps, getAppBySlug, homeCarouselLines, legalEmail, principles } from './lib/content'
 import { resolvePath } from './lib/routes'
 
@@ -84,8 +84,8 @@ function Shell({
     <div className="site-shell">
       <header className="site-header">
         <Link className="brand" href="/" navigate={navigate}>
-          {/* Lockup: mark left of the wordmark, vertically centred. */}
-          <FluidMark className="brand-mark" count={160} label="Harborline" />
+          {/* Compact lockup from the Tideline identity handoff. */}
+          <TidelineMark className="brand-mark" detail="compact" label="Harborline" />
           <span className="brand-word">Harborline</span>
         </Link>
         <nav className="nav-links" aria-label="Primary navigation">
@@ -139,7 +139,7 @@ function Hero({ navigate }: { navigate: (path: string) => void }) {
 
   return (
     <section className="hero-carousel">
-      <FluidMark className="hero-mark" label="The Harborline Company" />
+      <TidelineMark className="hero-mark" label="The Harborline Company" />
       <p className="eyebrow">The Harborline Company · Research &amp; Development</p>
       <div className="hero-line-wrap" aria-live="polite">
         {/* Only the active line renders; the changing `key` remounts the h1 so
@@ -275,7 +275,7 @@ function AppMarketingPage({ app, navigate }: { app: AppRecord, navigate: (path: 
 function NotFoundPage({ navigate }: { navigate: (path: string) => void }) {
   return (
     <section className="not-found">
-      <FluidMark className="hero-mark" preset="ribbon" label="Harborline" />
+      <TidelineMark className="hero-mark" label="Harborline" />
       <h1>That page moved on.</h1>
       <p>
         The link you followed does not match anything here. Every Harborline product is listed on

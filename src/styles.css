@@ -3,7 +3,7 @@
  * Tokens, type ramp, and spacing are from the design handoff and are final.
  * Two rules that are load-bearing, not stylistic:
  *   - No shadows anywhere. Surfaces separate by background value only.
- *   - The mark needs no container; it sits on any background.
+ *   - The mark carries its own rounded frame and sits directly on any surface.
  */
 
 :root {
@@ -200,6 +200,66 @@ p {
   display: block;
 }
 
+/* ------------------------------------------------------ Tideline mark */
+
+.tideline-drift,
+.tideline-bob {
+  transform-box: view-box;
+}
+
+.tideline-drift-84 {
+  animation: tideline-drift-84 37s linear infinite;
+}
+
+.tideline-drift-63 {
+  animation: tideline-drift-63 29s linear infinite reverse;
+}
+
+.tideline-drift-48 {
+  animation: tideline-drift-48 23s linear infinite;
+}
+
+.tideline-drift-42-slow {
+  animation: tideline-drift-42 30s linear infinite;
+}
+
+.tideline-drift-42-fast {
+  animation: tideline-drift-42 12s linear infinite;
+}
+
+.tideline-bob-53 {
+  animation: tideline-bob 53s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.tideline-bob-67 {
+  animation: tideline-bob 67s cubic-bezier(0.4, 0, 0.6, 1) -19s infinite;
+}
+
+.tideline-bob-41 {
+  animation: tideline-bob 41s cubic-bezier(0.4, 0, 0.6, 1) -7s infinite;
+}
+
+@keyframes tideline-drift-84 {
+  to { transform: translateX(-84px); }
+}
+
+@keyframes tideline-drift-63 {
+  to { transform: translateX(-63px); }
+}
+
+@keyframes tideline-drift-48 {
+  to { transform: translateX(-48px); }
+}
+
+@keyframes tideline-drift-42 {
+  to { transform: translateX(-42px); }
+}
+
+@keyframes tideline-bob {
+  0%, 100% { transform: translateY(2.6px); }
+  50% { transform: translateY(-2.6px); }
+}
+
 .hero-line-wrap {
   min-height: 1.05em;
   display: grid;
@@ -220,6 +280,11 @@ p {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .tideline-drift,
+  .tideline-bob {
+    animation: none;
+  }
+
   .hero-line {
     animation: none;
   }

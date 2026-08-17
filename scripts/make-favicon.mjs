@@ -1,64 +1,26 @@
 /**
- * Emits public/favicon.svg — a frozen vector frame of the mark, in the app-icon
- * treatment from the design handoff (ink chip, rounded corners, paper
- * particles). Canvas does not survive favicon, PNG, or PDF export, so the
- * static form has to be vector.
- *
- * It runs the real engine from src/lib/mark.ts rather than drawing the target
- * shape, because the target on its own is a bare diagonal — the mark is what
- * the field looks like once the flow has spread it across the disc.
+ * Emits the small-format Tideline app-icon treatment from the current brand
+ * handoff. At favicon sizes the mark intentionally reduces to one opaque wave.
  *
  * Run: pnpm favicon
  */
-import { writeFileSync, mkdirSync } from 'node:fs'
-import {
-  PRESETS,
-  SPEED,
-  advance,
-  particleAlpha,
-  rimFalloff,
-  seedParticles,
-  seedTargets,
-} from '../src/lib/mark.ts'
+import { mkdirSync, writeFileSync } from 'node:fs'
 
-const SIZE = 64
-const R = SIZE / 2
-const COUNT = 760 // enough surviving particles to read as a disc at 16px
-// Frames to let the field spread and reach its steady state. Divided by SPEED
-// so the frozen frame is the same distance in no matter how slowly the live
-// mark runs — the favicon should not change when the animation is retimed.
-const SETTLE = Math.round(420 / SPEED)
+const frontWave =
+  'M-84 27 C-73.5 22 -73.5 22 -63 27 C-52.5 32 -52.5 32 -42 27 C-31.5 22 -31.5 22 -21 27 C-10.5 32 -10.5 32 0 27 C10.5 22 10.5 22 21 27 C31.5 32 31.5 32 42 27 C52.5 22 52.5 22 63 27 C73.5 32 73.5 32 84 27 C94.5 22 94.5 22 105 27 C115.5 32 115.5 32 126 27 V52 H-84 Z'
 
-const opts = { ...PRESETS.curl, count: COUNT }
-const particles = seedParticles(COUNT)
-const targets = seedTargets(COUNT)
-
-for (let f = 0; f < SETTLE; f++) {
-  for (let i = 0; i < COUNT; i++) advance(particles[i], targets[i], opts, f / 60)
-}
-
-const dots = []
-for (const q of particles) {
-  const rim = rimFalloff(q.x, q.y)
-  if (rim <= 0.01) continue
-  const alpha = particleAlpha(rim, Math.hypot(q.vx, q.vy), opts.glow)
-  if (alpha < 0.05) continue
-  // Dots rather than streaks: at 16px a hairline segment disappears, and the
-  // canvas mark falls back to the same dot for sub-pixel segments.
-  const r = Math.max(0.4, q.s * (R / 74) * (0.7 + 0.5 * rim) * q.sw * opts.weight) * 1.6
-  dots.push(
-    `<circle cx="${(R + q.x * R).toFixed(1)}" cy="${(R + q.y * R).toFixed(1)}" r="${r.toFixed(2)}" opacity="${alpha.toFixed(2)}"/>`,
-  )
-}
-
-const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${SIZE} ${SIZE}" width="${SIZE}" height="${SIZE}">
-<rect width="${SIZE}" height="${SIZE}" rx="14" fill="#1c2a22"/>
-<g fill="#f0efe6">
-${dots.join('')}
-</g>
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect width="64" height="64" rx="14" fill="#1c2a22"/>
+  <g transform="translate(8 8)" fill="#f0efe6" stroke="#f0efe6">
+    <clipPath id="tideline-favicon-clip"><rect x="3" y="3" width="42" height="42" rx="10"/></clipPath>
+    <g clip-path="url(#tideline-favicon-clip)" stroke="none">
+      <path d="${frontWave}"/>
+    </g>
+    <rect x="3" y="3" width="42" height="42" rx="10" fill="none" stroke-width="5"/>
+  </g>
 </svg>
 `
 
 mkdirSync('public', { recursive: true })
 writeFileSync('public/favicon.svg', svg)
-console.log(`wrote public/favicon.svg (${dots.length} particles, ${(svg.length / 1024).toFixed(1)} kB)`)
+console.log('wrote public/favicon.svg (Tideline tiny mark)')

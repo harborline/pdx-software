@@ -17,15 +17,13 @@ pnpm test        # path-table self-check (404s, aliases, legacy redirects)
 
 ## The mark
 
-`src/components/FluidMark.tsx` is the animated identity mark: a particle field carried by a curl
-noise flow field, pulled toward a wave-shaped target, inside an implied circle. The maths is a
-straight port of the design handoff (`design_handoff_harborline_fluid_mark/fluid-mark.js`) and the
-tuning constants in `PRESETS` are final — `damp` and `wash` in particular are what make it read as
-water rather than as a swarm. Under `prefers-reduced-motion: reduce` it renders one settled frame
-and stops.
+`src/components/TidelineMark.tsx` is the animated identity mark from the current Harborline brand
+handoff: five layered swells held inside a rounded frame. Compact lockups use three layers, and tiny
+surfaces use one opaque wave so the shape survives at 16–20px. Motion stops under
+`prefers-reduced-motion: reduce` without changing the construction.
 
-`pnpm favicon` regenerates `public/favicon.svg`, a frozen vector frame of the mark in the app-icon
-treatment (canvas does not survive favicon or PDF export, so the static form has to be vector).
+`pnpm favicon` regenerates `public/favicon.svg` in the handoff's ink-chip treatment. The favicon is
+the tiny one-wave form rather than a raster image.
 
 ## Routes
 
