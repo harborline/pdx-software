@@ -126,7 +126,7 @@ function Hero() {
     <section className="hero">
       <TidelineMark className="hero-mark" label="The Harborline Company" />
       <p className="eyebrow">The Harborline Company · Research &amp; Development</p>
-      <h1 className="hero-tagline">Human Handcrafted Software</h1>
+      <h1 className="hero-tagline">Helping People Connect</h1>
     </section>
   )
 }
